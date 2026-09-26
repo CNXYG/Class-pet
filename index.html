@@ -366,7 +366,7 @@
     }
 
     // ==================== 宠物库数据（不参与导入导出） ====================
-    const DEFAULT_GIF_WALL = [
+const DEFAULT_GIF_WALL = [
   // 原始初始宝可梦
   { url: 'images/小火龙.gif', name: '小火龙' },
   { url: 'images/妙蛙种子.gif', name: '妙蛙种子' },
@@ -374,8 +374,7 @@
   { url: 'images/绿毛虫.gif', name: '绿毛虫' },
   { url: 'images/独角虫.gif', name: '独角虫' },
   { url: 'images/波波.gif', name: '波波' },
-
-  // 新增：截图筛选后的【进化起点宝可梦】（只能选这些，进化型不能直接选）
+  // 之前新增起点
   { url: 'images/鲤鱼王.gif', name: '鲤鱼王' },
   { url: 'images/墨海马.gif', name: '墨海马' },
   { url: 'images/迷你龙.gif', name: '迷你龙' },
@@ -393,14 +392,36 @@
   { url: 'images/呆呆兽.gif', name: '呆呆兽' },
   { url: 'images/可达鸭.gif', name: '可达鸭' },
   { url: 'images/皮丘.gif', name: '皮丘' },
-
   // 无进化链、独立稀有宝可梦，可以直接选择
   { url: 'images/化石翼龙.gif', name: '化石翼龙' },
   { url: 'images/吉利蛋.gif', name: '吉利蛋' },
-  { url: 'images/卡比兽.gif', name: '卡比兽' },
-  { url: 'images/拉普拉斯.gif', name: '拉普拉斯' }
+  { url: 'images/拉普拉斯.gif', name: '拉普拉斯' },
+  // 本次图片新增起点
+  { url: 'images/草苗龟.gif', name: '草苗龟' },
+  { url: 'images/波加曼.gif', name: '波加曼' },
+  { url: 'images/火稚鸡.gif', name: '火稚鸡' },
+  { url: 'images/呱呱泡蛙.gif', name: '呱呱泡蛙' },
+  { url: 'images/可可多拉.gif', name: '可可多拉' },
+  { url: 'images/拉鲁拉丝.gif', name: '拉鲁拉丝' },
+  { url: 'images/幼基拉斯.gif', name: '幼基拉斯' },
+  { url: 'images/圆陆鲨.gif', name: '圆陆鲨' },
+  { url: 'images/菊草叶.gif', name: '菊草叶' },
+  { url: 'images/水跃鱼.gif', name: '水跃鱼' },
+  { url: 'images/藤藤蛇.gif', name: '藤藤蛇' },
+  { url: 'images/暖暖猪.gif', name: '暖暖猪' },
+  { url: 'images/水水獭.gif', name: '水水獭' },
+  { url: 'images/乌波.gif', name: '乌波' },
+  { url: 'images/向尾猫.gif', name: '向尾猫' },
+  { url: 'images/小火焰猴.gif', name: '小火焰猴' },
+  { url: 'images/小卡比兽.gif', name: '小卡比兽' },
+  { url: 'images/露力丽.gif', name: '露力丽' },
+  { url: 'images/毛球.gif', name: '毛球' },
+  { url: 'images/青绵鸟.gif', name: '青绵鸟' },
+  { url: 'images/差不多娃娃.gif', name: '差不多娃娃' },
+  { url: 'images/信使鸟.gif', name: '信使鸟' },
+  { url: 'images/索罗亚.gif', name: '索罗亚' },
+  { url: 'images/铁哑铃.gif', name: '铁哑铃' }
 ];
-
 const DEFAULT_EVOLUTION_DATA = [
   // 原有进化链
   { source: 'images/小火龙.gif', target: 'images/火恐龙.gif' },
@@ -412,15 +433,13 @@ const DEFAULT_EVOLUTION_DATA = [
   { source: 'images/卡咪龟.gif', target: 'images/水箭龟.gif' },
   { source: 'images/绿毛虫.gif', target: 'images/铁甲蛹.gif' },
   { source: 'images/铁甲蛹.gif', target: 'images/巴大蝶.gif' },
-  { source: 'images/独角虫.gif', target: 'images/铁壳蛹.gif' },
-  { source: 'images/铁壳蛹.gif', target: 'images/大针蜂.gif' },
+  { source: 'images/独角虫.gif', target: 'images/铁壳昆.gif' },
+  { source: 'images/铁壳昆.gif', target: 'images/大针蜂.gif' },
   { source: 'images/大针蜂.gif', target: 'images/大针蜂Mega.gif' },
   { source: 'images/波波.gif', target: 'images/比比鸟.gif' },
-  { source: 'images/比比鸟.gif', target: 'images/大比鸟.gif' },
+  { source: 'images/比比鸟.gif', target: 'images/比雕.gif' },
   { source: 'images/皮丘.gif', target: 'images/皮卡丘.gif' },
   { source: 'images/皮卡丘.gif', target: 'images/雷丘.gif' },
-
-  // 新增进化链
   { source: 'images/鲤鱼王.gif', target: 'images/暴鲤龙.gif' },
   { source: 'images/墨海马.gif', target: 'images/海刺龙.gif' },
   { source: 'images/海刺龙.gif', target: 'images/刺龙王.gif' },
@@ -428,7 +447,7 @@ const DEFAULT_EVOLUTION_DATA = [
   { source: 'images/哈克龙.gif', target: 'images/快龙.gif' },
   { source: 'images/凯西.gif', target: 'images/勇基拉.gif' },
   { source: 'images/勇基拉.gif', target: 'images/胡地.gif' },
-  { source: 'images/胡地.gif', target: 'images/胡地-mega.gif' },
+  { source: 'images/胡地.gif', target: 'images/胡地Mega.gif' },
   { source: 'images/鬼斯.gif', target: 'images/鬼斯通.gif' },
   { source: 'images/鬼斯通.gif', target: 'images/耿鬼.gif' },
   { source: 'images/飞天螳螂.gif', target: 'images/巨钳螳螂.gif' },
@@ -443,7 +462,54 @@ const DEFAULT_EVOLUTION_DATA = [
   { source: 'images/海星星.gif', target: 'images/宝石海星.gif' },
   { source: 'images/小海狮.gif', target: 'images/白海狮.gif' },
   { source: 'images/呆呆兽.gif', target: 'images/呆壳兽.gif' },
-  { source: 'images/可达鸭.gif', target: 'images/哥达鸭.gif' }
+  { source: 'images/呆壳兽.gif', target: 'images/呆呆王.gif' },
+  { source: 'images/可达鸭.gif', target: 'images/哥达鸭.gif' },
+  // 本次新增进化链
+  { source: 'images/草苗龟.gif', target: 'images/树林龟.gif' },
+  { source: 'images/树林龟.gif', target: 'images/土台龟.gif' },
+  { source: 'images/波加曼.gif', target: 'images/波皇子.gif' },
+  { source: 'images/波皇子.gif', target: 'images/帝王拿波.gif' },
+  { source: 'images/火稚鸡.gif', target: 'images/力壮鸡.gif' },
+  { source: 'images/力壮鸡.gif', target: 'images/火焰鸡.gif' },
+  { source: 'images/火焰鸡.gif', target: 'images/火焰鸡Mega.gif' },
+  { source: 'images/呱呱泡蛙.gif', target: 'images/甲贺忍蛙.gif' },
+  { source: 'images/可可多拉.gif', target: 'images/可多拉.gif' },
+  { source: 'images/可多拉.gif', target: 'images/波士可多拉.gif' },
+  { source: 'images/拉鲁拉丝.gif', target: 'images/奇鲁拉丝.gif' },
+  { source: 'images/奇鲁拉丝.gif', target: 'images/沙奈朵.gif' },
+  { source: 'images/沙奈朵.gif', target: 'images/沙奈朵Mega.gif' },
+  { source: 'images/幼基拉斯.gif', target: 'images/沙基拉斯.gif' },
+  { source: 'images/沙基拉斯.gif', target: 'images/班基拉斯.gif' },
+  { source: 'images/班基拉斯.gif', target: 'images/班基拉斯Mega.gif' },
+  { source: 'images/圆陆鲨.gif', target: 'images/尖牙陆鲨.gif' },
+  { source: 'images/尖牙陆鲨.gif', target: 'images/烈咬陆鲨.gif' },
+  { source: 'images/烈咬陆鲨.gif', target: 'images/烈咬陆鲨Mega.gif' },
+  { source: 'images/菊草叶.gif', target: 'images/月桂叶.gif' },
+  { source: 'images/月桂叶.gif', target: 'images/大竺葵.gif' },
+  { source: 'images/水跃鱼.gif', target: 'images/沼跃鱼.gif' },
+  { source: 'images/沼跃鱼.gif', target: 'images/巨沼怪.gif' },
+  { source: 'images/藤藤蛇.gif', target: 'images/青藤蛇.gif' },
+  { source: 'images/青藤蛇.gif', target: 'images/君主蛇.gif' },
+  { source: 'images/暖暖猪.gif', target: 'images/炒炒猪.gif' },
+  { source: 'images/炒炒猪.gif', target: 'images/炎武王.gif' },
+  { source: 'images/水水獭.gif', target: 'images/双刃丸.gif' },
+  { source: 'images/双刃丸.gif', target: 'images/大剑鬼.gif' },
+  { source: 'images/乌波.gif', target: 'images/沼王.gif' },
+  { source: 'images/向尾猫.gif', target: 'images/优雅猫.gif' },
+  { source: 'images/小火焰猴.gif', target: 'images/猛火猴.gif' },
+  { source: 'images/猛火猴.gif', target: 'images/烈焰猴.gif' },
+  { source: 'images/小卡比兽.gif', target: 'images/卡比兽.gif' },
+  { source: 'images/露力丽.gif', target: 'images/玛力露.gif' },
+  { source: 'images/玛力露.gif', target: 'images/玛力露丽.gif' },
+  { source: 'images/毛球.gif', target: 'images/摩鲁蛾.gif' },
+  { source: 'images/青绵鸟.gif', target: 'images/七夕青鸟.gif' },
+  { source: 'images/海豹球.gif', target: 'images/海魔狮.gif' },
+  { source: 'images/海魔狮.gif', target: 'images/帝牙海狮.gif' },
+  { source: 'images/索罗亚.gif', target: 'images/索罗亚克.gif' },
+  { source: 'images/索罗亚克.gif', target: 'images/索罗亚克洗翠.gif' },
+  { source: 'images/铁哑铃.gif', target: 'images/金属怪.gif' },
+  { source: 'images/金属怪.gif', target: 'images/巨金怪.gif' },
+  { source: 'images/吉利蛋.gif', target: 'images/幸福蛋.gif' }
 ];
 
     const BUILT_IN_REASONS = [
