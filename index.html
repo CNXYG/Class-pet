@@ -337,30 +337,81 @@
 
     // ==================== 宠物库数据（不参与导入导出） ====================
     const DEFAULT_GIF_WALL = [
-        { url: 'images/小火龙.gif', name: '小火龙' },
-        { url: 'images/妙蛙种子.gif', name: '妙蛙种子' },
-        { url: 'images/杰尼龟.gif', name: '杰尼龟' },
-        { url: 'images/绿毛虫.gif', name: '绿毛虫' },
-        { url: 'images/独角虫.gif', name: '独角虫' },
-        { url: 'images/波波.gif', name: '波波' }
-    ];
+  // 原始初始宝可梦
+  { url: 'images/小火龙.gif', name: '小火龙' },
+  { url: 'images/妙蛙种子.gif', name: '妙蛙种子' },
+  { url: 'images/杰尼龟.gif', name: '杰尼龟' },
+  { url: 'images/绿毛虫.gif', name: '绿毛虫' },
+  { url: 'images/独角虫.gif', name: '独角虫' },
+  { url: 'images/波波.gif', name: '波波' },
 
-    const DEFAULT_EVOLUTION_DATA = [
-        { source: 'images/小火龙.gif', target: 'images/火恐龙.gif' },
-        { source: 'images/火恐龙.gif', target: 'images/喷火龙.gif' },
-        { source: 'images/喷火龙.gif', target: 'images/喷火龙MegaX.gif' },
-        { source: 'images/妙蛙种子.gif', target: 'images/妙蛙草.gif' },
-        { source: 'images/妙蛙草.gif', target: 'images/妙蛙花.gif' },
-        { source: 'images/杰尼龟.gif', target: 'images/卡咪龟.gif' },
-        { source: 'images/卡咪龟.gif', target: 'images/水箭龟.gif' },
-        { source: 'images/绿毛虫.gif', target: 'images/铁甲蛹.gif' },
-        { source: 'images/铁甲蛹.gif', target: 'images/巴大蝶.gif' },
-        { source: 'images/独角虫.gif', target: 'images/铁壳蛹.gif' },
-        { source: 'images/铁壳蛹.gif', target: 'images/大针蜂.gif' },
-        { source: 'images/大针蜂.gif', target: 'images/大针蜂Mega.gif' },
-        { source: 'images/波波.gif', target: 'images/比比鸟.gif' },
-        { source: 'images/比比鸟.gif', target: 'images/大比鸟.gif' }
-    ];
+  // 新增：截图筛选后的【进化起点宝可梦】（只能选这些，进化型不能直接选）
+  { url: 'images/鲤鱼王.gif', name: '鲤鱼王' },
+  { url: 'images/墨海马.gif', name: '墨海马' },
+  { url: 'images/迷你龙.gif', name: '迷你龙' },
+  { url: 'images/凯西.gif', name: '凯西' },
+  { url: 'images/鬼斯.gif', name: '鬼斯' },
+  { url: 'images/飞天螳螂.gif', name: '飞天螳螂' },
+  { url: 'images/六尾.gif', name: '六尾' },
+  { url: 'images/卡蒂狗.gif', name: '卡蒂狗' },
+  { url: 'images/独角犀牛.gif', name: '独角犀牛' },
+  { url: 'images/卡拉卡拉.gif', name: '卡拉卡拉' },
+  { url: 'images/胖丁.gif', name: '胖丁' },
+  { url: 'images/角金鱼.gif', name: '角金鱼' },
+  { url: 'images/海星星.gif', name: '海星星' },
+  { url: 'images/小海狮.gif', name: '小海狮' },
+  { url: 'images/呆呆兽.gif', name: '呆呆兽' },
+  { url: 'images/可达鸭.gif', name: '可达鸭' },
+
+  // 无进化链、独立稀有宝可梦，可以直接选择
+  { url: 'images/化石翼龙.gif', name: '化石翼龙' },
+  { url: 'images/吉利蛋.gif', name: '吉利蛋' },
+  { url: 'images/卡比兽.gif', name: '卡比兽' },
+  { url: 'images/拉普拉斯.gif', name: '拉普拉斯' }
+];
+
+const DEFAULT_EVOLUTION_DATA = [
+  // 原有进化链
+  { source: 'images/小火龙.gif', target: 'images/火恐龙.gif' },
+  { source: 'images/火恐龙.gif', target: 'images/喷火龙.gif' },
+  { source: 'images/喷火龙.gif', target: 'images/喷火龙MegaX.gif' },
+  { source: 'images/妙蛙种子.gif', target: 'images/妙蛙草.gif' },
+  { source: 'images/妙蛙草.gif', target: 'images/妙蛙花.gif' },
+  { source: 'images/杰尼龟.gif', target: 'images/卡咪龟.gif' },
+  { source: 'images/卡咪龟.gif', target: 'images/水箭龟.gif' },
+  { source: 'images/绿毛虫.gif', target: 'images/铁甲蛹.gif' },
+  { source: 'images/铁甲蛹.gif', target: 'images/巴大蝶.gif' },
+  { source: 'images/独角虫.gif', target: 'images/铁壳蛹.gif' },
+  { source: 'images/铁壳蛹.gif', target: 'images/大针蜂.gif' },
+  { source: 'images/大针蜂.gif', target: 'images/大针蜂Mega.gif' },
+  { source: 'images/波波.gif', target: 'images/比比鸟.gif' },
+  { source: 'images/比比鸟.gif', target: 'images/大比鸟.gif' },
+
+  // 新增进化链
+  { source: 'images/鲤鱼王.gif', target: 'images/暴鲤龙.gif' },
+  { source: 'images/墨海马.gif', target: 'images/海刺龙.gif' },
+  { source: 'images/海刺龙.gif', target: 'images/刺龙王.gif' },
+  { source: 'images/迷你龙.gif', target: 'images/哈克龙.gif' },
+  { source: 'images/哈克龙.gif', target: 'images/快龙.gif' },
+  { source: 'images/凯西.gif', target: 'images/勇基拉.gif' },
+  { source: 'images/勇基拉.gif', target: 'images/胡地.gif' },
+  { source: 'images/胡地.gif', target: 'images/胡地-mega.gif' },
+  { source: 'images/鬼斯.gif', target: 'images/鬼斯通.gif' },
+  { source: 'images/鬼斯通.gif', target: 'images/耿鬼.gif' },
+  { source: 'images/飞天螳螂.gif', target: 'images/巨钳螳螂.gif' },
+  { source: 'images/巨钳螳螂.gif', target: 'images/巨钳螳螂Mega.gif' },
+  { source: 'images/六尾.gif', target: 'images/九尾.gif' },
+  { source: 'images/卡蒂狗.gif', target: 'images/风速狗.gif' },
+  { source: 'images/独角犀牛.gif', target: 'images/钻角犀兽.gif' },
+  { source: 'images/钻角犀兽.gif', target: 'images/超甲狂犀.gif' },
+  { source: 'images/卡拉卡拉.gif', target: 'images/嘎啦嘎啦.gif' },
+  { source: 'images/胖丁.gif', target: 'images/胖可丁.gif' },
+  { source: 'images/角金鱼.gif', target: 'images/金鱼王.gif' },
+  { source: 'images/海星星.gif', target: 'images/宝石海星.gif' },
+  { source: 'images/小海狮.gif', target: 'images/白海狮.gif' },
+  { source: 'images/呆呆兽.gif', target: 'images/呆壳兽.gif' },
+  { source: 'images/可达鸭.gif', target: 'images/哥达鸭.gif' }
+];
 
     const BUILT_IN_REASONS = [
         '参与班级管理',
