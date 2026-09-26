@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级积分榜</title>
+    <style>
+        :root {
+            --bg: #f4f6fb;
+            --card-bg: #ffffff;
+            --primary: #4f6ef7;
+            --green: #22c55e;
+            --green-bg: #ecfdf5;
+            --red: #ef4444;
+            --red-bg: #fef2f2;
+            --gray: #9ca3af;
+            --gray-bg: #f9fafb;
+            --text: #1f2937;
+            --subtext: #6b7280;
+            --radius: 18px;
+            --shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            --font: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            --amber: #d97706;
+            --amber-light: #fef3c7;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:var(--font); background:var(--bg); color:var(--text); padding:24px 16px; min-height:100vh; display:flex; flex-direction:column; align-items:center; -webkit-font-smoothing:antialiased; }
+        .container { width:100%; max-width:1100px; position:relative; }
+        .header { text-align:center; margin-bottom:16px; position:relative; }
+        .header h1 { font-size:28px; font-weight:700; letter-spacing:1px; display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; }
+        .header h1 span { background:linear-gradient(135deg,#4f6ef7,#7c3aed); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .corner-actions { position:absolute; top:0; right:0; display:flex; gap:8px; z-index:10; }
+        .corner-actions .btn { padding:8px 16px; font-size:13px; }
+        .main-nav { display:flex; justify-content:center; gap:10px; margin:16px 0 24px; flex-wrap:wrap; }
+        .nav-btn { padding:10px 22px; border-radius:30px; border:2px solid #e5e7eb; background:white; font-size:14px; font-weight:600; color:var(--subtext); cursor:pointer; transition:all 0.2s ease; letter-spacing:0.3px; box-shadow:0 2px 6px rgba(0,0,0,0.03); font-family:var(--font); display:inline-flex; align-items:center; gap:6px; }
+        .nav-btn:hover { border-color:#d1d5db; background:#f9fafb; color:var(--text); }
+        .nav-btn.active { background:var(--primary); border-color:var(--primary); color:white; box-shadow:0 4px 12px rgba(79,110,247,0.3); }
+        .nav-btn.active:hover { background:#3a54d4; border-color:#3a54d4; color:white; }
+        .page { display:none; }
+        .page.active { display:block; animation:fadeIn 0.2s ease; }
+        @keyframes fadeIn { from {opacity:0; transform:translateY(6px);} to {opacity:1; transform:translateY(0);} }
+        .view-toggle { display:flex; justify-content:center; gap:12px; margin:0 0 20px; flex-wrap:wrap; }
+        .view-btn { padding:8px 18px; border-radius:30px; border:2px solid #e5e7eb; background:white; font-size:13px; font-weight:600; color:var(--subtext); cursor:pointer; transition:all 0.2s ease; letter-spacing:0.3px; box-shadow:0 2px 6px rgba(0,0,0,0.03); font-family:var(--font); display:inline-flex; align-items:center; gap:6px; }
+        .view-btn:hover { border-color:#d1d5db; background:#f9fafb; color:var(--text); }
+        .view-btn.active { background:var(--primary); border-color:var(--primary); color:white; box-shadow:0 4px 12px rgba(79,110,247,0.3); }
+        .group-section { background:rgba(255,255,255,0.7); border-radius:24px; padding:18px 20px; box-shadow:0 4px 12px rgba(0,0,0,0.03); margin-bottom:24px; }
+        .group-title { font-size:18px; font-weight:600; margin-bottom:14px; color:var(--text); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .group-badge { background:var(--primary); color:white; font-size:13px; padding:4px 12px; border-radius:20px; font-weight:500; }
+        .group-total { font-size:13px; color:var(--subtext); font-weight:normal; margin-left:auto; }
+        .student-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:16px; }
+        .student-card { background:var(--card-bg); border-radius:var(--radius); padding:12px 10px 14px; text-align:center; box-shadow:var(--shadow); transition:all 0.2s ease; border:1.5px solid transparent; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; min-height:230px; position:relative; cursor:pointer; overflow:hidden; }
+        .student-card:hover { transform:translateY(-4px); box-shadow:0 12px 28px rgba(0,0,0,0.1); border-color:rgba(79,110,247,0.4); }
+        .student-nickname { font-size:13px; font-weight:700; color:#7c3aed; background:#f3e8ff; padding:3px 10px; border-radius:20px; margin-bottom:8px; letter-spacing:0.5px; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-height:24px; line-height:18px; }
+        .student-nickname.empty { background:transparent; color:transparent; pointer-events:none; }
+        .student-image-wrapper { width:120px; height:120px; margin-bottom:12px; border-radius:16px; overflow:hidden; background:var(--gray-bg); display:flex; align-items:flex-end; justify-content:center; flex-shrink:0; box-shadow:inset 0 0 0 1px rgba(0,0,0,0.04); }
+        .student-image-wrapper img { max-width:100%; max-height:100%; display:block; }
+        .student-image-placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:48px; font-weight:700; color:white; background:#cbd5e1; letter-spacing:0; }
+        .progress-container { width:100%; max-width:150px; margin-bottom:8px; }
+        .progress-label { font-size:12px; color:var(--subtext); margin-bottom:3px; display:flex; justify-content:space-between; align-items:center; gap:2px; }
+        .progress-label .label-left { display:inline-flex; align-items:center; gap:3px; font-weight:600; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .progress-label .label-right { color:var(--text); font-weight:700; flex-shrink:0; }
+        .progress-bar { width:100%; height:10px; background:var(--gray-bg); border-radius:10px; overflow:hidden; box-shadow:inset 0 1px 3px rgba(0,0,0,0.08); }
+        .progress-fill { height:100%; border-radius:10px; background:linear-gradient(90deg,#4f6ef7,#7c3aed); transition:width 0.4s ease, background 0.4s ease; }
+        .student-name { font-weight:600; font-size:15px; color:var(--text); margin-top:auto; word-break:break-word; line-height:1.3; }
+        .gif-wall-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:16px; }
+        .gif-wall-card { background:white; border-radius:var(--radius); padding:12px; box-shadow:var(--shadow); transition:transform 0.2s, box-shadow 0.2s; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:170px; }
+        .gif-wall-card:hover { transform:translateY(-4px); box-shadow:0 12px 28px rgba(0,0,0,0.12); }
+        .gif-wall-image-wrapper { width:120px; height:120px; border-radius:16px; overflow:hidden; background:var(--gray-bg); display:flex; align-items:flex-end; justify-content:center; flex-shrink:0; box-shadow:inset 0 0 0 1px rgba(0,0,0,0.04); margin-bottom:8px; }
+        .gif-wall-image-wrapper img { max-width:100%; max-height:100%; display:block; }
+        .gif-wall-name { font-size:13px; font-weight:600; color:var(--text); text-align:center; word-break:break-word; line-height:1.3; }
+        .btn { padding:10px 20px; border-radius:30px; border:none; background:var(--primary); color:white; font-weight:600; font-size:14px; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:var(--font); display:inline-flex; align-items:center; gap:6px; }
+        .btn:hover { background:#3a54d4; transform:translateY(-1px); box-shadow:0 4px 12px rgba(79,110,247,0.3); }
+        .btn-outline { background:white; color:var(--text); border:1.5px solid #e5e7eb; box-shadow:none; }
+        .btn-outline:hover { border-color:var(--primary); color:var(--primary); background:rgba(79,110,247,0.05); transform:none; box-shadow:none; }
+        .btn-sm { padding:6px 14px; font-size:13px; }
+        .btn-evolution { background:white; color:var(--amber); border:1.5px solid #fcd34d; box-shadow:none; font-weight:600; font-size:14px; padding:10px 20px; border-radius:30px; cursor:pointer; transition:all 0.2s; white-space:nowrap; font-family:var(--font); display:inline-flex; align-items:center; gap:6px; animation:evolutionAppear 0.25s ease; }
+        .btn-evolution:hover { border-color:var(--amber); color:var(--amber); background:var(--amber-light); transform:none; box-shadow:none; }
+        @keyframes evolutionAppear { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        .empty-state { text-align:center; padding:40px 20px; color:var(--gray); font-size:15px; background:white; border-radius:24px; box-shadow:var(--shadow); }
+        .footer { margin-top:24px; color:var(--gray); font-size:12px; text-align:center; }
+        .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:200; display:none; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(3px); }
+        .modal-overlay.show { display:flex; }
+        .modal { background:white; border-radius:20px; padding:24px; max-width:640px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.3); animation:modalIn 0.2s ease; }
+        .modal-lg { max-width:780px; }
+        @keyframes modalIn { from {opacity:0; transform:scale(0.95);} to {opacity:1; transform:scale(1);} }
+        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+        .modal-title { font-size:20px; font-weight:700; color:var(--text); }
+        .modal-close { background:none; border:none; font-size:28px; cursor:pointer; color:var(--gray); padding:0; line-height:1; }
+        .modal-close:hover { color:var(--text); }
+        .gif-library-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:12px; margin:16px 0; }
+        .gif-item { position:relative; border:2px solid #e5e7eb; border-radius:12px; overflow:hidden; cursor:pointer; transition:all 0.2s; background:white; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; }
+        .gif-item img { max-width:100%; max-height:100%; object-fit:contain; display:block; }
+        .gif-item.selected { border-color:var(--primary); box-shadow:0 0 0 3px rgba(79,110,247,0.3); }
+        .gif-item .checkmark { position:absolute; top:4px; right:4px; background:var(--primary); color:white; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:bold; opacity:0; transition:opacity 0.2s; }
+        .gif-item.selected .checkmark { opacity:1; }
+        .evolution-badge { position:absolute; bottom:4px; left:4px; background:rgba(217,119,6,0.85); color:white; font-size:10px; padding:2px 6px; border-radius:8px; }
+        .selection-info { font-size:14px; color:var(--subtext); margin:8px 0; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .selection-info strong { color:var(--primary); }
+        .badge-display-inline { display:inline-flex; align-items:center; gap:4px; font-size:14px; color:var(--subtext); margin-left:4px; }
+        .modal-footer { display:flex; justify-content:flex-end; gap:8px; margin-top:20px; flex-wrap:wrap; align-items:center; }
+        .toast { position:fixed; bottom:24px; right:24px; background:var(--text); color:white; padding:12px 20px; border-radius:30px; font-size:14px; font-weight:500; box-shadow:0 8px 20px rgba(0,0,0,0.2); z-index:300; animation:slideIn 0.3s ease; max-width:350px; }
+        @keyframes slideIn { from {opacity:0; transform:translateX(40px);} to {opacity:1; transform:translateX(0);} }
+        .wall-picker-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:12px; margin:16px 0; }
+        .wall-picker-item { position:relative; border:2px solid #e5e7eb; border-radius:12px; overflow:hidden; cursor:pointer; transition:all 0.2s; background:white; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; }
+        .wall-picker-item img { max-width:100%; max-height:100%; object-fit:contain; display:block; }
+        .wall-picker-item.selected { border-color:var(--primary); box-shadow:0 0 0 3px rgba(79,110,247,0.3); }
+        .wall-picker-item .checkmark { position:absolute; top:4px; right:4px; background:var(--primary); color:white; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:bold; opacity:0; transition:opacity 0.2s; }
+        .wall-picker-item.selected .checkmark { opacity:1; }
+        #importFileInput { display:none; }
+        .form-group { margin-bottom:16px; }
+        .form-label { display:block; font-size:13px; font-weight:600; color:var(--subtext); margin-bottom:6px; }
+        .form-label.required::after { content:' *'; color:var(--red); font-weight:700; }
+        .form-input { width:100%; padding:11px 14px; border:1.5px solid #e5e7eb; border-radius:10px; font-size:14px; font-family:var(--font); transition:all 0.2s; outline:none; background:white; color:var(--text); }
+        .form-input:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(79,110,247,0.15); }
+        .form-input.error { border-color:var(--red); background:#fef2f2; }
+        .quick-score-btns { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+        .quick-score-btn { padding:6px 14px; border-radius:20px; border:1.5px solid #e5e7eb; background:white; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:var(--font); color:var(--subtext); }
+        .quick-score-btn.plus { border-color:#bbf7d0; background:var(--green-bg); color:#166534; }
+        .quick-score-btn.plus:hover { border-color:var(--green); background:#d1fae5; }
+        .quick-score-btn.minus { border-color:#fecaca; background:var(--red-bg); color:#991b1b; }
+        .quick-score-btn.minus:hover { border-color:var(--red); background:#fee2e2; }
+        .quick-reason-btns { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
+        .quick-reason-btn { padding:6px 12px; border-radius:20px; border:1.5px solid #e5e7eb; background:white; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:var(--font); color:var(--text); }
+        .quick-reason-btn:hover { border-color:var(--primary); color:var(--primary); background:rgba(79,110,247,0.05); }
+        .quick-reason-btn.active { background:var(--primary); color:white; border-color:var(--primary); }
+        .batch-filter-row { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
+        .batch-selection-info { font-size:14px; color:var(--subtext); margin:8px 0; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+        .batch-selection-info strong { color:var(--primary); font-size:16px; }
+        .batch-student-list { max-height:220px; overflow-y:auto; border:1.5px solid #e5e7eb; border-radius:12px; padding:6px; background:var(--gray-bg); margin-bottom:16px; }
+        .batch-student-item { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; transition:background 0.15s, border-color 0.15s; margin-bottom:4px; background:white; border:1px solid transparent; }
+        .batch-student-item:hover { background:rgba(79,110,247,0.05); }
+        .batch-student-item.selected { background:rgba(79,110,247,0.08); border-color:var(--primary); }
+        .batch-student-item .check-box { width:20px; height:20px; border-radius:6px; border:1.5px solid #d1d5db; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:white; background:white; flex-shrink:0; transition:background 0.15s, border-color 0.15s; }
+        .batch-student-item.selected .check-box { background:var(--primary); border-color:var(--primary); }
+        .batch-student-item .batch-name { font-weight:600; flex:1; font-size:14px; color:var(--text); }
+        .batch-student-item .batch-group { font-size:11px; color:var(--subtext); background:var(--gray-bg); padding:2px 8px; border-radius:10px; border:1px solid #e5e7eb; }
+        .batch-student-item .batch-score { font-weight:700; color:var(--primary); font-size:14px; min-width:50px; text-align:right; }
+        .batch-student-item .batch-badges { font-size:11px; color:var(--amber); margin-left:4px; }
+        .history-filter { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
+        .history-summary { font-size:13px; color:var(--subtext); margin-bottom:12px; display:flex; gap:16px; flex-wrap:wrap; }
+        .history-summary span { display:inline-flex; align-items:center; gap:4px; }
+        .history-summary .val-plus { color:var(--green); font-weight:700; }
+        .history-summary .val-minus { color:var(--red); font-weight:700; }
+        .history-list { max-height:420px; overflow-y:auto; border:1.5px solid #e5e7eb; border-radius:12px; padding:4px; background:var(--gray-bg); }
+        .history-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; margin-bottom:4px; background:white; border-left:4px solid transparent; transition:background 0.15s; }
+        .history-item:hover { background:rgba(79,110,247,0.03); }
+        .history-item.plus { border-left-color:var(--green); }
+        .history-item.minus { border-left-color:var(--red); }
+        .history-item .hi-change { font-weight:800; font-size:16px; min-width:56px; text-align:center; flex-shrink:0; }
+        .history-item.plus .hi-change { color:var(--green); }
+        .history-item.minus .hi-change { color:var(--red); }
+        .history-item .hi-main { flex:1; min-width:0; }
+        .history-item .hi-name { font-weight:700; font-size:14px; color:var(--text); margin-bottom:2px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+        .history-item .hi-group-tag { font-size:10px; color:var(--subtext); background:var(--gray-bg); padding:1px 6px; border-radius:8px; border:1px solid #e5e7eb; font-weight:500; }
+        .history-item .hi-reason { font-size:13px; color:var(--text); margin-bottom:2px; word-break:break-word; }
+        .history-item .hi-meta { font-size:11px; color:var(--subtext); }
+        .history-item .hi-badge-earned { font-size:11px; color:var(--amber); background:var(--amber-light); padding:1px 6px; border-radius:8px; font-weight:600; margin-left:4px; }
+        .history-item .hi-score-flow { font-size:12px; color:var(--subtext); margin-left:4px; }
+        .history-empty { text-align:center; padding:30px 20px; color:var(--gray); font-size:14px; }
+        @media (max-width:600px) {
+            .student-grid { grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; }
+            .student-image-wrapper { width:100px; height:100px; }
+            .modal { padding:16px; }
+            .gif-library-grid { grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); }
+            .gif-wall-grid { grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); }
+            .gif-wall-image-wrapper { width:100px; height:100px; }
+            .wall-picker-grid { grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); }
+            .corner-actions { top:0; right:0; gap:4px; }
+            .corner-actions .btn { padding:6px 10px; font-size:12px; }
+            .modal-footer { gap:6px; }
+            .modal-footer .btn, .modal-footer .btn-evolution { padding:8px 12px; font-size:12px; }
+            .batch-student-item .batch-group { display:none; }
+            .quick-reason-btn { padding:5px 10px; font-size:11px; }
+            .history-item .hi-change { font-size:14px; min-width:48px; }
+            .history-item .hi-name { font-size:13px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ================================================================
+     📋 默认数据区（直接粘贴导出的 JSON 到这里即可）
+     
+     使用方法：
+       1. 点击页面右上角"📤 导出"按钮，下载 JSON 文件
+       2. 用记事本打开，Ctrl+A 全选，Ctrl+C 复制
+       3. 把下面 <script> 和 </script> 之间的**全部内容**替换为您复制的内容
+       4. 保存 HTML 文件，刷新页面即可看到新数据
+     
+     ⚠️ 只需替换这一处，其他代码不需要改动！
+     ================================================================ -->
+<script type="application/json" id="default-data">
+{
+  "students": [
+    {"id":"s1","name":"何双岑","groupId":"g1","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s2","name":"陆欣怡","groupId":"g1","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s3","name":"甘松浩","groupId":"g1","score":0,"nickname":"团支书","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s4","name":"吴贵良","groupId":"g1","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s5","name":"玉灿睿","groupId":"g1","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s6","name":"卢灿泽","groupId":"g1","score":0,"nickname":"劳动委员","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s7","name":"冯兴银","groupId":"g1","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s8","name":"黄子轩","groupId":"g1","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s9","name":"梁文浩","groupId":"g1","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s10","name":"何英俊","groupId":"g1","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s11","name":"邓华崧","groupId":"g1","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s12","name":"黄振宇","groupId":"g1","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s13","name":"黄特萱","groupId":"g2","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s14","name":"吴映蓉","groupId":"g2","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s15","name":"赵廷轩","groupId":"g2","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s16","name":"吴英丰","groupId":"g2","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s17","name":"杜科辉","groupId":"g2","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s18","name":"凌能能","groupId":"g2","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s19","name":"何灵智","groupId":"g2","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s20","name":"李圣杰","groupId":"g2","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s21","name":"吴念颖","groupId":"g2","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s22","name":"杜昊翔","groupId":"g2","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s23","name":"黄腊梅","groupId":"g3","score":0,"nickname":"生活委员","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s24","name":"甘露枝","groupId":"g3","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s25","name":"农海宗","groupId":"g3","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s26","name":"黄强","groupId":"g3","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s27","name":"黄志发","groupId":"g3","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s28","name":"李多宏","groupId":"g3","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s29","name":"谭兴","groupId":"g3","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s30","name":"方政轩","groupId":"g3","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s31","name":"黄晓嘉","groupId":"g4","score":0,"nickname":"班长","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s32","name":"农钰暄","groupId":"g4","score":0,"nickname":"学习委员","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s33","name":"黄欣喜","groupId":"g4","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s34","name":"黄巧莹","groupId":"g4","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s35","name":"黄映佳","groupId":"g4","score":0,"nickname":"纪律委员","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s36","name":"黄桂媛","groupId":"g4","score":0,"nickname":"文艺委员","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s37","name":"李骁伟","groupId":"g4","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s38","name":"黄道祺","groupId":"g4","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s39","name":"吴伟朝","groupId":"g4","score":0,"nickname":"体育委员","gifLibrary":[],"gifList":[],"badges":1},
+    {"id":"s40","name":"黄子祥","groupId":"g4","score":0,"nickname":"体育委员","gifLibrary":[],"gifList":[],"badges":1}
+  ],
+  "groups": [
+    {"id":"g1","name":"第一组"},
+    {"id":"g2","name":"第二组"},
+    {"id":"g3","name":"第三组"},
+    {"id":"g4","name":"第四组"}
+  ],
+  "scoreHistory": []
+}
+</script>
+<!-- ================================================================
+     默认数据结束
+     ================================================================ -->
+
+<div class="container">
+    <div class="corner-actions">
+        <button class="btn btn-outline" onclick="openScoreHistory()">📋 积分记录</button>
+        <button class="btn btn-outline" onclick="openBatchScore()">✏️ 积分管理</button>
+        <button class="btn btn-outline" onclick="exportData()">📤 导出</button>
+        <button class="btn btn-outline" onclick="document.getElementById('importFileInput').click()">📥 导入</button>
+        <input type="file" id="importFileInput" accept=".json" onchange="importData(event)">
+    </div>
+
+    <div class="header">
+        <h1><span>🏆 班级积分榜</span></h1>
+    </div>
+
+    <div class="main-nav">
+        <button class="nav-btn active" data-page="scoreboard" onclick="switchPage('scoreboard')">📊 积分榜</button>
+        <button class="nav-btn" data-page="gifwall" onclick="switchPage('gifwall')">🐾 宠物库</button>
+    </div>
+
+    <div class="page active" id="page-scoreboard">
+        <div class="view-toggle">
+            <button class="view-btn" data-view="group" onclick="switchView('group')">📁 按小组分类</button>
+            <button class="view-btn active" data-view="all" onclick="switchView('all')">👥 显示全部学生</button>
+        </div>
+        <div id="scoreboard-app"></div>
+    </div>
+
+    <div class="page" id="page-gifwall">
+        <div class="gif-wall-grid" id="gifWallGrid"></div>
+    </div>
+
+    <div class="footer">💡 数据仅保存在内存中，刷新前请导出保存 · 使用 JSON 文件导入恢复</div>
+</div>
+
+<div class="modal-overlay" id="gifModalOverlay">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title" id="modalStudentName">学生宠物库</span>
+            <button class="modal-close" onclick="closeGifModal()">&times;</button>
+        </div>
+        <div id="gifModalContent"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="wallPickerOverlay">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">从宠物库选择电子宠物</span>
+            <button class="modal-close" onclick="closeWallPicker()">&times;</button>
+        </div>
+        <div id="wallPickerContent"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="batchScoreOverlay">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">✏️ 批量修改积分</span>
+            <button class="modal-close" onclick="closeBatchScore()">&times;</button>
+        </div>
+        <div id="batchScoreContent"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="historyOverlay">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <span class="modal-title">📋 积分记录</span>
+            <button class="modal-close" onclick="closeScoreHistory()">&times;</button>
+        </div>
+        <div id="historyContent"></div>
+    </div>
+</div>
+
+<script>
+    // ==================== 从页面中的 JSON 标签读取默认数据（含积分记录） ====================
+    function loadDefaultStudentData() {
+        try {
+            const raw = document.getElementById('default-data').textContent.trim();
+            const data = JSON.parse(raw);
+            if (data && Array.isArray(data.students) && Array.isArray(data.groups)) {
+                return data;
+            }
+            console.warn('默认数据格式不正确，使用空数据');
+        } catch (e) {
+            console.error('默认数据解析失败（请检查 <script id="default-data"> 内的 JSON 格式）：', e);
+        }
+        return { students: [], groups: [], scoreHistory: [] };
+    }
+
+    // ==================== 宠物库数据（不参与导入导出） ====================
+    const DEFAULT_GIF_WALL = [
+        { url: 'images/小火龙.gif', name: '小火龙' },
+        { url: 'images/妙蛙种子.gif', name: '妙蛙种子' },
+        { url: 'images/杰尼龟.gif', name: '杰尼龟' },
+        { url: 'images/绿毛虫.gif', name: '绿毛虫' },
+        { url: 'images/独角虫.gif', name: '独角虫' },
+        { url: 'images/波波.gif', name: '波波' }
+    ];
+
+    const DEFAULT_EVOLUTION_DATA = [
+        { source: 'images/小火龙.gif', target: 'images/火恐龙.gif' },
+        { source: 'images/火恐龙.gif', target: 'images/喷火龙.gif' },
+        { source: 'images/喷火龙.gif', target: 'images/喷火龙MegaX.gif' },
+        { source: 'images/妙蛙种子.gif', target: 'images/妙蛙草.gif' },
+        { source: 'images/妙蛙草.gif', target: 'images/妙蛙花.gif' },
+        { source: 'images/杰尼龟.gif', target: 'images/卡咪龟.gif' },
+        { source: 'images/卡咪龟.gif', target: 'images/水箭龟.gif' },
+        { source: 'images/绿毛虫.gif', target: 'images/铁甲蛹.gif' },
+        { source: 'images/铁甲蛹.gif', target: 'images/巴大蝶.gif' },
+        { source: 'images/独角虫.gif', target: 'images/铁壳蛹.gif' },
+        { source: 'images/铁壳蛹.gif', target: 'images/大针蜂.gif' },
+        { source: 'images/大针蜂.gif', target: 'images/大针蜂Mega.gif' },
+        { source: 'images/波波.gif', target: 'images/比比鸟.gif' },
+        { source: 'images/比比鸟.gif', target: 'images/大比鸟.gif' }
+    ];
+
+    const BUILT_IN_REASONS = [
+        '参与班级管理',
+        '早读表现优秀',
+        '课堂表现优秀',
+        '晚练表现优秀',
+        '晚读表现优秀',
+        '晚修表现优秀'
+    ];
+
+    const BADGE_MILESTONE = 100;
+    const PROGRESS_GRADIENTS = [
+        'linear-gradient(90deg,#4f6ef7,#7c3aed)',
+        'linear-gradient(90deg,#22c55e,#16a34a)',
+        'linear-gradient(90deg,#f59e0b,#ef4444)',
+        'linear-gradient(90deg,#ec4899,#a855f7)',
+        'linear-gradient(90deg,#06b6d4,#3b82f6)'
+    ];
+
+    // ==================== 全局数据 ====================
+    const _defaultData = loadDefaultStudentData();
+    let studentData = { students: _defaultData.students, groups: _defaultData.groups };
+    let scoreHistory = Array.isArray(_defaultData.scoreHistory) ? _defaultData.scoreHistory : [];
+    let gifWallData = JSON.parse(JSON.stringify(DEFAULT_GIF_WALL));
+    let evolutionData = JSON.parse(JSON.stringify(DEFAULT_EVOLUTION_DATA));
+
+    let currentView = 'all';
+    let currentPage = 'scoreboard';
+    let rotationTimers = [];
+    let currentEditingStudentId = null;
+    let tempSelectedIndices = [];
+    let tempWallSelection = [];
+    let tempBatchSelectedIds = new Set();
+    let batchGroupFilter = 'all';
+    let batchSearch = '';
+    let historyFilterStudent = 'all';
+    let historyFilterType = 'all';
+    let historySearch = '';
+
+    function getGroupName(groups, groupId) { const g = groups.find(gr => gr.id === groupId); return g ? g.name : '未分组'; }
+    function getPlaceholderColor(name) {
+        const colors = ['#ef4444','#f59e0b','#22c55e','#4f6ef7','#a855f7','#ec4899','#14b8a6','#f97316','#6366f1','#84cc16','#06b6d4','#d946ef'];
+        let hash = 0; for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        return colors[Math.abs(hash) % colors.length];
+    }
+    function getEvolutionTarget(url) { const entry = evolutionData.find(e => e.source === url); return entry ? entry.target : null; }
+    function getProgressGradient(score) {
+        const positive = Math.max(0, score);
+        const tier = Math.floor(positive / BADGE_MILESTONE);
+        return PROGRESS_GRADIENTS[tier % PROGRESS_GRADIENTS.length];
+    }
+    function getLevelProgress(score) {
+        const positive = Math.max(0, score);
+        return positive % BADGE_MILESTONE;
+    }
+    function escapeHtml(str) {
+        if (str === undefined || str === null) return '';
+        return String(str).replace(/[&<>"']/g, function(m) {
+            return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m];
+        });
+    }
+
+    function normalizeStudentData(data) {
+        if (!data.students) data.students = [];
+        if (!data.groups) data.groups = [];
+        data.students.forEach(s => {
+            if (!s.gifLibrary) s.gifLibrary = [];
+            if (!s.gifList) s.gifList = [];
+            if (s.badges === undefined) s.badges = 1;
+            if (s.badgeMilestones === undefined) {
+                s.badgeMilestones = Math.max(0, Math.floor((s.score || 0) / BADGE_MILESTONE));
+            }
+            s.gifLibrary = s.gifLibrary.map(item => {
+                if (typeof item === 'string') return { url: item, evolution: getEvolutionTarget(item) };
+                return { url: item.url, evolution: item.evolution !== undefined ? item.evolution : getEvolutionTarget(item.url) };
+            });
+            s.gifList = s.gifList.filter(url => typeof url === 'string');
+        });
+        return data;
+    }
+    studentData = normalizeStudentData(studentData);
+
+    function switchPage(page) {
+        currentPage = page;
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.page === page));
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('page-' + page).classList.add('active');
+        if (page === 'scoreboard') renderScoreboard(); else if (page === 'gifwall') { renderGifWall(); clearAllRotations(); }
+    }
+
+    function renderScoreboard() {
+        const app = document.getElementById('scoreboard-app');
+        if (!studentData.students || studentData.students.length === 0) { app.innerHTML = '<div class="empty-state">📭 暂无学生数据</div>'; return; }
+        if (currentView === 'group') renderGroupView(app); else renderAllView(app);
+        document.querySelectorAll('.view-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.view === currentView));
+    }
+    function renderAllView(app) {
+        const sorted = [...studentData.students].sort((a,b) => (b.score||0) - (a.score||0));
+        const totalScore = sorted.reduce((sum,s) => sum + (s.score||0), 0);
+        const html = `<div class="group-section"><div class="group-title"><span class="group-badge">👥 全部学生</span><span>${sorted.length} 人</span><span class="group-total">总分 ${totalScore}</span></div><div class="student-grid">${sorted.map(s => createStudentCard(s)).join('')}</div></div>`;
+        app.innerHTML = html; startGifRotations(sorted);
+    }
+    function renderGroupView(app) {
+        const groupsMap = new Map();
+        studentData.groups.forEach(g => groupsMap.set(g.id, { ...g, students: [] }));
+        const ungrouped = { id: null, name: '未分组', students: [] };
+        studentData.students.forEach(s => { const group = groupsMap.get(s.groupId); if (group) group.students.push(s); else ungrouped.students.push(s); });
+        const allGroups = [];
+        groupsMap.forEach(g => { if (g.students.length > 0) allGroups.push(g); });
+        if (ungrouped.students.length > 0) allGroups.push(ungrouped);
+        let html = '';
+        allGroups.forEach(group => {
+            const total = group.students.reduce((sum,s) => sum + (s.score||0), 0);
+            const avg = group.students.length ? (total/group.students.length).toFixed(1) : 0;
+            const sorted = [...group.students].sort((a,b) => (b.score||0) - (a.score||0));
+            html += `<div class="group-section"><div class="group-title"><span class="group-badge">${group.name}</span><span>${group.students.length} 人</span><span class="group-total">总分 ${total} · 平均 ${avg}</span></div><div class="student-grid">${sorted.map(s => createStudentCard(s)).join('')}</div></div>`;
+        });
+        app.innerHTML = html; startGifRotations(studentData.students);
+    }
+
+    function createStudentCard(student) {
+        const initial = student.name.charAt(0);
+        const placeholderColor = getPlaceholderColor(student.name);
+        const score = student.score || 0;
+        const progressPercent = getLevelProgress(score);
+        const gradient = getProgressGradient(score);
+
+        const nickname = student.nickname || '';
+        const nicknameClass = nickname ? '' : 'empty';
+        const nicknameHtml = nickname ? nickname : '&nbsp;';
+        const gifList = student.gifList && Array.isArray(student.gifList) ? student.gifList.filter(url => url && url.trim() !== '') : [];
+        let imageHtml;
+        if (gifList.length > 0) {
+            const imgId = `gif-img-${student.id}`;
+            imageHtml = `<img id="${imgId}" src="${gifList[0]}" alt="${student.name}" loading="lazy">`;
+            student._imgId = imgId; student._gifList = gifList;
+        } else {
+            imageHtml = `<div class="student-image-placeholder" style="background: ${placeholderColor};">${initial}</div>`;
+        }
+        return `<div class="student-card" onclick="openGifModal('${student.id}')">
+            <div class="student-nickname ${nicknameClass}">${nicknameHtml}</div>
+            <div class="student-image-wrapper">${imageHtml}</div>
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span class="label-left">积分</span>
+                    <span class="label-right">${score}</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${progressPercent}%; background: ${gradient};"></div>
+                </div>
+            </div>
+            <div class="student-name">${student.name}</div>
+        </div>`;
+    }
+
+    function startGifRotations(students) {
+        clearAllRotations();
+        students.forEach(student => {
+            const gifList = student._gifList;
+            if (!gifList || gifList.length <= 1) return;
+            const imgId = student._imgId;
+            const imgElement = document.getElementById(imgId);
+            if (!imgElement) return;
+            let index = 0;
+            const timer = setInterval(() => { index = (index + 1) % gifList.length; imgElement.src = gifList[index]; }, 5000);
+            rotationTimers.push(timer);
+        });
+    }
+    function clearAllRotations() { rotationTimers.forEach(t => clearInterval(t)); rotationTimers = []; }
+    function switchView(view) { if (view !== 'group' && view !== 'all') return; currentView = view; renderScoreboard(); }
+
+    function openGifModal(studentId) {
+        const student = studentData.students.find(s => s.id === studentId);
+        if (!student) return;
+        currentEditingStudentId = studentId;
+        const gifListCounts = {};
+        (student.gifList || []).forEach(url => { if (url) gifListCounts[url] = (gifListCounts[url] || 0) + 1; });
+        tempSelectedIndices = [];
+        student.gifLibrary.forEach((item, idx) => {
+            if (gifListCounts[item.url] && gifListCounts[item.url] > 0) { tempSelectedIndices.push(idx); gifListCounts[item.url]--; }
+        });
+        if (tempSelectedIndices.length > 6) tempSelectedIndices = tempSelectedIndices.slice(0,6);
+        document.getElementById('modalStudentName').textContent = `${student.name} 的宠物库`;
+        renderGifModalContent(student);
+        document.getElementById('gifModalOverlay').classList.add('show');
+    }
+    function closeGifModal() { document.getElementById('gifModalOverlay').classList.remove('show'); currentEditingStudentId = null; }
+
+    function renderGifModalContent(student) {
+        const library = student.gifLibrary || [];
+        const container = document.getElementById('gifModalContent');
+        let html = '';
+        html += `<div class="selection-info">
+            <span>已选择 <strong>${tempSelectedIndices.length}</strong>/6 只宠物用于展示</span>
+            <span class="badge-display-inline"><span>🎖️</span><span>徽章：<strong>${student.badges || 0}</strong></span>
+            <span style="margin-left:8px;">积分：<strong>${student.score || 0}</strong></span>
+        </div>`;
+        if (library.length === 0) {
+            html += `<p style="color:var(--gray); margin:16px 0;">暂无宠物，请点击下方“添加”从宠物库选择</p>`;
+        } else {
+            html += `<div class="gif-library-grid">`;
+            library.forEach((item, idx) => {
+                const isSelected = tempSelectedIndices.includes(idx);
+                const hasEvolution = item.evolution && item.evolution.trim() !== '';
+                html += `<div class="gif-item ${isSelected ? 'selected' : ''}" onclick="toggleGifSelection(${idx})" title="点击选择/取消展示${hasEvolution ? ' | 可进化' : ''}"><img src="${item.url}" alt="宠物 ${idx+1}"><div class="checkmark">✓</div>${hasEvolution ? '<div class="evolution-badge">进化</div>' : ''}</div>`;
+            });
+            html += `</div>`;
+        }
+        const canEvolve = tempSelectedIndices.length === 1 
+            && library[tempSelectedIndices[0]] 
+            && library[tempSelectedIndices[0]].evolution 
+            && (student.badges || 0) >= 1;
+        const evolutionBtn = canEvolve 
+            ? `<button class="btn btn-evolution" onclick="evolveSelectedGif()">⚡ 进化</button>` 
+            : '';
+        html += `<div class="modal-footer">
+                    <button class="btn btn-outline" onclick="closeGifModal()">取消</button>
+                    <button class="btn btn-outline" onclick="openWallPicker()">➕ 添加</button>
+                    ${evolutionBtn}
+                    <button class="btn btn-primary" onclick="saveGifSelection()">保存展示设置</button>
+                </div>`;
+        container.innerHTML = html;
+    }
+
+    function toggleGifSelection(index) {
+        const student = studentData.students.find(s => s.id === currentEditingStudentId);
+        if (!student) return;
+        const pos = tempSelectedIndices.indexOf(index);
+        if (pos >= 0) tempSelectedIndices.splice(pos,1);
+        else {
+            if (tempSelectedIndices.length >= 6) { showToast('最多只能选择6只宠物展示'); return; }
+            tempSelectedIndices.push(index);
+        }
+        renderGifModalContent(student);
+    }
+
+    function evolveSelectedGif() {
+        const student = studentData.students.find(s => s.id === currentEditingStudentId);
+        if (!student) return;
+        if (tempSelectedIndices.length !== 1) { showToast('请先选中一只且仅一只宠物进行进化'); return; }
+        const index = tempSelectedIndices[0];
+        const gifItem = student.gifLibrary[index];
+        if (!gifItem || !gifItem.evolution) { showToast('选中的宠物无法进化'); return; }
+        if ((student.badges || 0) < 1) { showToast('徽章不足，无法进化'); return; }
+        const oldUrl = gifItem.url;
+        const targetUrl = gifItem.evolution;
+        student.badges -= 1;
+        gifItem.url = targetUrl;
+        gifItem.evolution = getEvolutionTarget(targetUrl);
+        if (student.gifList) { student.gifList = student.gifList.map(url => url === oldUrl ? targetUrl : url); }
+        renderGifModalContent(student);
+        renderScoreboard();
+        showToast('进化成功！');
+    }
+
+    function saveGifSelection() {
+        const student = studentData.students.find(s => s.id === currentEditingStudentId);
+        if (!student) return;
+        student.gifList = tempSelectedIndices.map(idx => student.gifLibrary[idx].url).filter(url => url);
+        closeGifModal();
+        renderScoreboard();
+        showToast('展示设置已保存（请记得导出数据备份）');
+    }
+
+    // ==================== 批量修改积分 ====================
+    function openBatchScore() {
+        tempBatchSelectedIds = new Set();
+        batchGroupFilter = 'all';
+        batchSearch = '';
+        renderBatchScoreModal();
+        document.getElementById('batchScoreOverlay').classList.add('show');
+    }
+
+    function closeBatchScore() {
+        document.getElementById('batchScoreOverlay').classList.remove('show');
+        tempBatchSelectedIds = new Set();
+    }
+
+    function getFilteredBatchStudents() {
+        let filtered = [...studentData.students];
+        if (batchGroupFilter !== 'all') filtered = filtered.filter(s => s.groupId === batchGroupFilter);
+        if (batchSearch) {
+            const kw = batchSearch.toLowerCase();
+            filtered = filtered.filter(s => s.name.toLowerCase().includes(kw));
+        }
+        filtered.sort((a,b) => (b.score||0) - (a.score||0));
+        return filtered;
+    }
+
+    function renderBatchScoreModal() {
+        const container = document.getElementById('batchScoreContent');
+        const filtered = getFilteredBatchStudents();
+
+        const currentChange = document.getElementById('batchScoreChangeInput')?.value || '';
+        const currentReason = document.getElementById('batchScoreReasonInput')?.value || '';
+
+        let html = `
+            <div class="batch-filter-row">
+                <select class="form-input" style="flex:1;min-width:110px;" onchange="batchGroupFilter=this.value; renderBatchScoreModal();">
+                    <option value="all" ${batchGroupFilter === 'all' ? 'selected' : ''}>全部小组</option>
+                    ${studentData.groups.map(g => `<option value="${g.id}" ${g.id === batchGroupFilter ? 'selected' : ''}>${g.name}</option>`).join('')}
+                </select>
+                <input type="text" class="form-input" style="flex:2;min-width:140px;" placeholder="搜索姓名..." value="${batchSearch}" oninput="batchSearch=this.value; renderBatchScoreModal();">
+                <button class="btn btn-outline btn-sm" onclick="selectAllBatch()">全选</button>
+                <button class="btn btn-outline btn-sm" onclick="clearBatchSelection()">清空</button>
+            </div>
+            <div class="batch-selection-info">
+                <span>已选 <strong>${tempBatchSelectedIds.size}</strong> 人</span>
+                ${tempBatchSelectedIds.size > 0 ? `<span style="color:var(--subtext);font-size:13px;">（共 ${filtered.length} 人可选中）</span>` : ''}
+            </div>
+            <div class="batch-student-list">
+                ${filtered.map(s => {
+                    const isSelected = tempBatchSelectedIds.has(s.id);
+                    return `<div class="batch-student-item ${isSelected ? 'selected' : ''}" data-student-id="${s.id}" onclick="toggleBatchStudent('${s.id}')">
+                        <span class="check-box">${isSelected ? '✓' : ''}</span>
+                        <span class="batch-name">${escapeHtml(s.name)}</span>
+                        <span class="batch-group">${escapeHtml(getGroupName(studentData.groups, s.groupId))}</span>
+                        <span class="batch-score">${s.score || 0}分</span>
+                        <span class="batch-badges">🎖️${s.badges || 0}</span>
+                    </div>`;
+                }).join('') || '<div class="empty-state" style="padding:20px;">暂无匹配学生</div>'}
+            </div>
+            <div class="form-group">
+                <label class="form-label">积分变化（正数加分，负数减分）</label>
+                <input type="number" class="form-input" id="batchScoreChangeInput" placeholder="例如：＋10 或 -10" value="${currentChange}">
+                <div class="quick-score-btns">
+                    <button class="quick-score-btn plus" onclick="setBatchScoreChange(10)">+10</button>
+                    <button class="quick-score-btn plus" onclick="setBatchScoreChange(20)">+20</button>
+                    <button class="quick-score-btn plus" onclick="setBatchScoreChange(30)">+30</button>
+                    <button class="quick-score-btn plus" onclick="setBatchScoreChange(50)">+50</button>
+                    <button class="quick-score-btn minus" onclick="setBatchScoreChange(-10)">-10</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label required">修改理由（必填，可点击下方快捷标签）</label>
+                <input type="text" class="form-input" id="batchScoreReasonInput" placeholder="必填：请填写或选择修改理由" value="${currentReason}" oninput="onReasonInputChange(this.value)">
+                <div class="quick-reason-btns">
+                    ${BUILT_IN_REASONS.map(reason => `
+                        <button class="quick-reason-btn ${currentReason === reason ? 'active' : ''}" onclick="setBatchReason('${reason}')">${escapeHtml(reason)}</button>
+                    `).join('')}
+                </div>
+            </div>
+            <div style="font-size:12px;color:var(--subtext);margin-bottom:8px;padding:8px 12px;background:#fef3c7;border-radius:8px;">
+                💡 每满 ${BADGE_MILESTONE} 分自动获得 1 个徽章 · 所有修改都会记入积分记录
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeBatchScore()">取消</button>
+                <button class="btn btn-primary" onclick="confirmBatchScore()">确认修改（${tempBatchSelectedIds.size} 人）</button>
+            </div>
+        `;
+        container.innerHTML = html;
+    }
+
+    function setBatchReason(reason) {
+        const input = document.getElementById('batchScoreReasonInput');
+        if (input) {
+            input.value = reason;
+            input.classList.remove('error');
+            document.querySelectorAll('.quick-reason-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.trim() === reason);
+            });
+        }
+    }
+
+    function onReasonInputChange(value) {
+        document.querySelectorAll('.quick-reason-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.textContent.trim() === value);
+        });
+        const input = document.getElementById('batchScoreReasonInput');
+        if (input && value.trim()) input.classList.remove('error');
+    }
+
+    function toggleBatchStudent(id) {
+        if (tempBatchSelectedIds.has(id)) tempBatchSelectedIds.delete(id);
+        else tempBatchSelectedIds.add(id);
+
+        const item = document.querySelector(`.batch-student-item[data-student-id="${id}"]`);
+        if (item) {
+            const isSelected = tempBatchSelectedIds.has(id);
+            item.classList.toggle('selected', isSelected);
+            const checkbox = item.querySelector('.check-box');
+            if (checkbox) checkbox.textContent = isSelected ? '✓' : '';
+        }
+        updateBatchSelectionInfo();
+    }
+
+    function updateBatchSelectionInfo() {
+        const infoEl = document.querySelector('#batchScoreContent .batch-selection-info');
+        const totalAvailable = document.querySelectorAll('#batchScoreContent .batch-student-item').length;
+        if (infoEl) {
+            infoEl.innerHTML = `<span>已选 <strong>${tempBatchSelectedIds.size}</strong> 人</span>` +
+                (tempBatchSelectedIds.size > 0 ? `<span style="color:var(--subtext);font-size:13px;">（共 ${totalAvailable} 人可选中）</span>` : '');
+        }
+        const confirmBtn = document.querySelector('#batchScoreContent .modal-footer .btn-primary');
+        if (confirmBtn) {
+            confirmBtn.textContent = `确认修改（${tempBatchSelectedIds.size} 人）`;
+        }
+    }
+
+    function selectAllBatch() {
+        const filtered = getFilteredBatchStudents();
+        filtered.forEach(s => tempBatchSelectedIds.add(s.id));
+        document.querySelectorAll('#batchScoreContent .batch-student-item').forEach(item => {
+            const id = item.dataset.studentId;
+            if (tempBatchSelectedIds.has(id)) {
+                item.classList.add('selected');
+                const cb = item.querySelector('.check-box');
+                if (cb) cb.textContent = '✓';
+            }
+        });
+        updateBatchSelectionInfo();
+    }
+
+    function clearBatchSelection() {
+        tempBatchSelectedIds = new Set();
+        document.querySelectorAll('#batchScoreContent .batch-student-item').forEach(item => {
+            item.classList.remove('selected');
+            const cb = item.querySelector('.check-box');
+            if (cb) cb.textContent = '';
+        });
+        updateBatchSelectionInfo();
+    }
+
+    function setBatchScoreChange(value) {
+        const input = document.getElementById('batchScoreChangeInput');
+        if (input) input.value = value;
+    }
+
+    function confirmBatchScore() {
+        if (tempBatchSelectedIds.size === 0) {
+            showToast('请先选择要修改积分的学生');
+            return;
+        }
+        const changeInput = document.getElementById('batchScoreChangeInput');
+        const reasonInput = document.getElementById('batchScoreReasonInput');
+        const change = parseInt(changeInput.value);
+        const reason = (reasonInput.value || '').trim();
+        if (!reason) {
+            showToast('请填写修改理由后再提交');
+            reasonInput.classList.add('error');
+            reasonInput.focus();
+            return;
+        }
+        if (isNaN(change) || change === 0) {
+            showToast('请输入有效的积分变化（非零整数）');
+            changeInput.focus();
+            return;
+        }
+
+        const selectedCount = tempBatchSelectedIds.size;
+
+        let totalBadgesEarned = 0;
+        let earnedStudents = [];
+        const timestamp = new Date().toLocaleString('zh-CN');
+
+        const idsToProcess = [...tempBatchSelectedIds];
+
+        idsToProcess.forEach(id => {
+            const student = studentData.students.find(s => s.id === id);
+            if (!student) return;
+            const oldScore = student.score || 0;
+            student.score = oldScore + change;
+
+            const newMilestone = Math.max(0, Math.floor(student.score / BADGE_MILESTONE));
+            const currentMilestone = student.badgeMilestones || 0;
+            let earnedBadges = 0;
+            if (newMilestone > currentMilestone) {
+                earnedBadges = newMilestone - currentMilestone;
+                student.badges = (student.badges || 0) + earnedBadges;
+                student.badgeMilestones = newMilestone;
+                totalBadgesEarned += earnedBadges;
+                earnedStudents.push(student.name);
+            }
+
+            scoreHistory.push({
+                id: 'h' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                studentId: student.id,
+                studentName: student.name,
+                groupId: student.groupId,
+                oldScore: oldScore,
+                change: change,
+                newScore: student.score,
+                reason: reason,
+                earnedBadges: earnedBadges,
+                time: timestamp
+            });
+        });
+
+        closeBatchScore();
+        renderScoreboard();
+
+        const sign = change > 0 ? '+' : '';
+        showToast(`${selectedCount} 名学生积分 ${sign}${change}（${reason}）`);
+        if (totalBadgesEarned > 0) {
+            setTimeout(() => {
+                showToast(`🎉 ${earnedStudents.length} 名学生达成新成就，共获得 ${totalBadgesEarned} 个徽章！`);
+            }, 900);
+        }
+    }
+
+    // ==================== 积分记录 ====================
+    function openScoreHistory() {
+        historyFilterStudent = 'all';
+        historyFilterType = 'all';
+        historySearch = '';
+        renderScoreHistoryModal();
+        document.getElementById('historyOverlay').classList.add('show');
+    }
+
+    function closeScoreHistory() {
+        document.getElementById('historyOverlay').classList.remove('show');
+    }
+
+    function renderScoreHistoryModal() {
+        const container = document.getElementById('historyContent');
+        let filtered = [...scoreHistory];
+        if (historyFilterStudent !== 'all') filtered = filtered.filter(h => h.studentId === historyFilterStudent);
+        if (historyFilterType === 'plus') filtered = filtered.filter(h => h.change > 0);
+        else if (historyFilterType === 'minus') filtered = filtered.filter(h => h.change < 0);
+        if (historySearch) {
+            const kw = historySearch.toLowerCase();
+            filtered = filtered.filter(h =>
+                (h.studentName || '').toLowerCase().includes(kw) ||
+                (h.reason || '').toLowerCase().includes(kw)
+            );
+        }
+        filtered = filtered.reverse();
+
+        const totalPlus = scoreHistory.filter(h => h.change > 0).reduce((s, h) => s + h.change, 0);
+        const totalMinus = scoreHistory.filter(h => h.change < 0).reduce((s, h) => s + h.change, 0);
+
+        const studentOptions = [...studentData.students]
+            .sort((a,b) => (a.name || '').localeCompare(b.name || '', 'zh-CN'))
+            .map(s => `<option value="${s.id}" ${historyFilterStudent === s.id ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('');
+
+        let html = `
+            <div class="history-filter">
+                <select class="form-input" style="flex:1;min-width:120px;" onchange="historyFilterStudent=this.value; renderScoreHistoryModal();">
+                    <option value="all" ${historyFilterStudent === 'all' ? 'selected' : ''}>全部学生</option>
+                    ${studentOptions}
+                </select>
+                <select class="form-input" style="flex:1;min-width:100px;" onchange="historyFilterType=this.value; renderScoreHistoryModal();">
+                    <option value="all" ${historyFilterType === 'all' ? 'selected' : ''}>全部类型</option>
+                    <option value="plus" ${historyFilterType === 'plus' ? 'selected' : ''}>只显示加分</option>
+                    <option value="minus" ${historyFilterType === 'minus' ? 'selected' : ''}>只显示减分</option>
+                </select>
+                <input type="text" class="form-input" style="flex:2;min-width:140px;" placeholder="搜索姓名或理由..." value="${historySearch}" oninput="historySearch=this.value; renderScoreHistoryModal();">
+            </div>
+            <div class="history-summary">
+                <span>📝 共 <strong>${scoreHistory.length}</strong> 条记录</span>
+                <span>📈 累计加分 <strong class="val-plus">+${totalPlus}</strong></span>
+                <span>📉 累计减分 <strong class="val-minus">${totalMinus}</strong></span>
+                <span>🔍 当前显示 <strong>${filtered.length}</strong> 条</span>
+            </div>
+        `;
+
+        if (filtered.length === 0) {
+            html += `<div class="history-empty">📭 暂无积分记录<br><span style="font-size:12px;color:var(--gray);">修改积分后会自动记录在这里</span></div>`;
+        } else {
+            html += `<div class="history-list">`;
+            filtered.forEach(h => {
+                const isPlus = h.change > 0;
+                const flow = `${h.oldScore} → ${h.newScore}`;
+                const badgeTag = h.earnedBadges > 0 ? `<span class="hi-badge-earned">🎖️ +${h.earnedBadges}</span>` : '';
+                const groupName = getGroupName(studentData.groups, h.groupId);
+                html += `<div class="history-item ${isPlus ? 'plus' : 'minus'}">
+                    <div class="hi-change">${isPlus ? '+' : ''}${h.change}</div>
+                    <div class="hi-main">
+                        <div class="hi-name">
+                            ${escapeHtml(h.studentName)}
+                            <span class="hi-group-tag">${escapeHtml(groupName)}</span>
+                            ${badgeTag}
+                        </div>
+                        <div class="hi-reason">${escapeHtml(h.reason)}</div>
+                        <div class="hi-meta">
+                            ${escapeHtml(h.time)} <span class="hi-score-flow">· 积分变化：${flow}</span>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            html += `</div>`;
+        }
+
+        html += `<div class="modal-footer"><button class="btn btn-outline" onclick="closeScoreHistory()">关闭</button></div>`;
+        container.innerHTML = html;
+    }
+
+    // ==================== 从宠物库选择 ====================
+    function openWallPicker() {
+        const student = studentData.students.find(s => s.id === currentEditingStudentId);
+        if (!student) return;
+        const container = document.getElementById('wallPickerContent');
+        if (gifWallData.length === 0) {
+            container.innerHTML = '<div class="empty-state">宠物库为空</div>';
+        } else {
+            tempWallSelection = [];
+            let html = `<div class="selection-info"><span>点击选择要添加的宠物（可多选），每个宠物消耗1个徽章</span><span class="badge-display-inline"><span>🎖️</span><span>徽章：<strong>${student.badges || 0}</strong></span></div>`;
+            html += `<div class="wall-picker-grid">`;
+            gifWallData.forEach((item, index) => {
+                const url = item.url;
+                const name = item.name || url.split('/').pop().replace(/\.[^/.]+$/, '');
+                html += `<div class="wall-picker-item" onclick="toggleWallSelection(${index})" title="${name}"><img src="${url}" alt="${name}" loading="lazy"><div class="checkmark">✓</div></div>`;
+            });
+            html += `</div><div class="modal-footer"><button class="btn btn-outline" onclick="closeWallPicker()">取消</button><button class="btn btn-primary" onclick="confirmAddFromWall()">添加选中的宠物</button></div>`;
+            container.innerHTML = html;
+        }
+        document.getElementById('wallPickerOverlay').classList.add('show');
+    }
+    function closeWallPicker() { document.getElementById('wallPickerOverlay').classList.remove('show'); tempWallSelection = []; }
+    function toggleWallSelection(index) {
+        const url = gifWallData[index].url;
+        const pos = tempWallSelection.indexOf(url);
+        if (pos >= 0) tempWallSelection.splice(pos,1); else tempWallSelection.push(url);
+        const items = document.querySelectorAll('.wall-picker-item');
+        if (items[index]) items[index].classList.toggle('selected');
+    }
+    function confirmAddFromWall() {
+        if (tempWallSelection.length === 0) { showToast('请先选择要添加的宠物'); return; }
+        const student = studentData.students.find(s => s.id === currentEditingStudentId);
+        if (!student) return;
+        const requiredBadges = tempWallSelection.length;
+        if ((student.badges || 0) < requiredBadges) { showToast(`徽章不足！需要 ${requiredBadges} 个徽章，当前只有 ${student.badges || 0} 个`); return; }
+        student.badges = (student.badges || 0) - requiredBadges;
+        if (!student.gifLibrary) student.gifLibrary = [];
+        tempWallSelection.forEach(url => { student.gifLibrary.push({ url: url, evolution: getEvolutionTarget(url) }); });
+        closeWallPicker();
+        renderGifModalContent(student);
+        showToast(`成功添加 ${tempWallSelection.length} 只宠物，消耗 ${requiredBadges} 个徽章`);
+    }
+
+    function renderGifWall() {
+        const grid = document.getElementById('gifWallGrid');
+        if (gifWallData.length === 0) { grid.innerHTML = '<div class="empty-state">🐾 宠物库为空</div>'; return; }
+        grid.innerHTML = gifWallData.map((item, index) => {
+            const url = item.url;
+            const name = item.name || url.split('/').pop().replace(/\.[^/.]+$/, '');
+            const evolutionIndicator = getEvolutionTarget(url) ? '🔁' : '';
+            return `<div class="gif-wall-card"><div class="gif-wall-image-wrapper"><img src="${url}" alt="${name}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:14px;>宠物加载失败</div>'"></div><div class="gif-wall-name">${name} ${evolutionIndicator}</div></div>`;
+        }).join('');
+    }
+
+    // ==================== 导入导出 ====================
+    function exportData() {
+        const data = {
+            students: studentData.students,
+            groups: studentData.groups,
+            scoreHistory: scoreHistory
+        };
+
+        const lines = [];
+        lines.push('{');
+        lines.push('  "students": [');
+        data.students.forEach((s, i) => {
+            const comma = i < data.students.length - 1 ? ',' : '';
+            lines.push('    ' + JSON.stringify(s) + comma);
+        });
+        lines.push('  ],');
+        lines.push('  "groups": [');
+        data.groups.forEach((g, i) => {
+            const comma = i < data.groups.length - 1 ? ',' : '';
+            lines.push('    ' + JSON.stringify(g) + comma);
+        });
+        lines.push('  ],');
+        lines.push('  "scoreHistory": [');
+        data.scoreHistory.forEach((h, i) => {
+            const comma = i < data.scoreHistory.length - 1 ? ',' : '';
+            lines.push('    ' + JSON.stringify(h) + comma);
+        });
+        lines.push('  ]');
+        lines.push('}');
+        const json = lines.join('\n');
+
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `班级学生数据_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('学生数据已导出（含积分记录）');
+    }
+
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (data && data.students && data.groups) {
+                    studentData = { students: data.students, groups: data.groups };
+                    if (Array.isArray(data.scoreHistory)) {
+                        scoreHistory = data.scoreHistory;
+                    }
+                    studentData = normalizeStudentData(studentData);
+                    renderScoreboard();
+                    renderGifWall();
+                    showToast('学生数据导入成功（含积分记录）');
+                } else { showToast('数据格式不正确，导入失败'); }
+            } catch (err) { showToast('文件解析失败，请检查 JSON 格式'); }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
+    }
+
+    function showToast(msg) {
+        const old = document.querySelector('.toast');
+        if (old) old.remove();
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2400);
+    }
+
+    document.getElementById('gifModalOverlay').addEventListener('click', function(e) { if (e.target === this) closeGifModal(); });
+    document.getElementById('wallPickerOverlay').addEventListener('click', function(e) { if (e.target === this) closeWallPicker(); });
+    document.getElementById('batchScoreOverlay').addEventListener('click', function(e) { if (e.target === this) closeBatchScore(); });
+    document.getElementById('historyOverlay').addEventListener('click', function(e) { if (e.target === this) closeScoreHistory(); });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && document.getElementById('batchScoreOverlay').classList.contains('show')) {
+            if (e.target.id !== 'batchScoreReasonInput') confirmBatchScore();
+        }
+    });
+
+    renderScoreboard();
+    renderGifWall();
+</script>
+</body>
+</html>
