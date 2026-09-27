@@ -35,7 +35,6 @@
         .nav-btn { padding:10px 22px; border-radius:30px; border:2px solid #e5e7eb; background:white; font-size:14px; font-weight:600; color:var(--subtext); cursor:pointer; transition:all 0.2s ease; letter-spacing:0.3px; box-shadow:0 2px 6px rgba(0,0,0,0.03); font-family:var(--font); display:inline-flex; align-items:center; gap:6px; }
         .nav-btn:hover { border-color:#d1d5db; background:#f9fafb; color:var(--text); }
         .nav-btn.active { background:var(--primary); border-color:var(--primary); color:white; box-shadow:0 4px 12px rgba(79,110,247,0.3); }
-        .nav-btn.active:hover { background:#3a54d4; border-color:#3a54d4; color:white; }
         .page { display:none; }
         .page.active { display:block; animation:fadeIn 0.2s ease; }
         @keyframes fadeIn { from {opacity:0; transform:translateY(6px);} to {opacity:1; transform:translateY(0);} }
@@ -157,6 +156,15 @@
         .history-item .hi-badge-earned { font-size:11px; color:var(--amber); background:var(--amber-light); padding:1px 6px; border-radius:8px; font-weight:600; margin-left:4px; }
         .history-item .hi-score-flow { font-size:12px; color:var(--subtext); margin-left:4px; }
         .history-empty { text-align:center; padding:30px 20px; color:var(--gray); font-size:14px; }
+        .loading-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(244,246,251,0.95); z-index:500; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; }
+        .loading-overlay.hide { display:none; }
+        .loading-spinner { width:40px; height:40px; border:4px solid #e5e7eb; border-top-color:var(--primary); border-radius:50%; animation:spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color:var(--subtext); font-size:14px; }
+        .data-error { text-align:center; padding:40px 24px; background:white; border-radius:24px; box-shadow:var(--shadow); max-width:520px; margin:40px auto; }
+        .data-error h3 { color:var(--red); font-size:18px; margin-bottom:12px; }
+        .data-error p { color:var(--subtext); font-size:14px; line-height:1.7; margin-bottom:8px; }
+        .data-error code { background:var(--gray-bg); padding:2px 6px; border-radius:6px; font-family:monospace; color:var(--primary); }
         @media (max-width:600px) {
             .student-grid { grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; }
             .student-image-wrapper { width:100px; height:100px; }
@@ -178,136 +186,189 @@
 </head>
 <body>
 
+<!-- 数据加载遮罩 -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loadingText">正在加载学生数据…</div>
+</div>
+
 <!-- ================================================================
-     📋 默认数据区（直接粘贴导出的 JSON 到这里即可）
-     
-     使用方法：
-       1. 点击页面右上角"📤 导出"按钮，下载 JSON 文件
-       2. 用记事本打开，Ctrl+A 全选，Ctrl+C 复制
-       3. 把下面 <script> 和 </script> 之间的**全部内容**替换为您复制的内容
-       4. 保存 HTML 文件，刷新页面即可看到新数据
-     
-     ⚠️ 只需替换这一处，其他代码不需要改动！
+     📦 宠物库数据（放在 HTML 里，不参与导出）
      ================================================================ -->
-<script type="application/json" id="default-data">
+<script type="application/json" id="gif-wall-data">
+[
+  {"url":"images/小火龙.gif","name":"小火龙"},
+  {"url":"images/妙蛙种子.gif","name":"妙蛙种子"},
+  {"url":"images/杰尼龟.gif","name":"杰尼龟"},
+  {"url":"images/绿毛虫.gif","name":"绿毛虫"},
+  {"url":"images/独角虫.gif","name":"独角虫"},
+  {"url":"images/波波.gif","name":"波波"},
+  {"url":"images/鲤鱼王.gif","name":"鲤鱼王"},
+  {"url":"images/墨海马.gif","name":"墨海马"},
+  {"url":"images/迷你龙.gif","name":"迷你龙"},
+  {"url":"images/凯西.gif","name":"凯西"},
+  {"url":"images/鬼斯.gif","name":"鬼斯"},
+  {"url":"images/飞天螳螂.gif","name":"飞天螳螂"},
+  {"url":"images/六尾.gif","name":"六尾"},
+  {"url":"images/卡蒂狗.gif","name":"卡蒂狗"},
+  {"url":"images/独角犀牛.gif","name":"独角犀牛"},
+  {"url":"images/卡拉卡拉.gif","name":"卡拉卡拉"},
+  {"url":"images/胖丁.gif","name":"胖丁"},
+  {"url":"images/角金鱼.gif","name":"角金鱼"},
+  {"url":"images/海星星.gif","name":"海星星"},
+  {"url":"images/小海狮.gif","name":"小海狮"},
+  {"url":"images/呆呆兽.gif","name":"呆呆兽"},
+  {"url":"images/可达鸭.gif","name":"可达鸭"},
+  {"url":"images/皮丘.gif","name":"皮丘"},
+  {"url":"images/化石翼龙.gif","name":"化石翼龙"},
+  {"url":"images/吉利蛋.gif","name":"吉利蛋"},
+  {"url":"images/拉普拉斯.gif","name":"拉普拉斯"},
+  {"url":"images/草苗龟.gif","name":"草苗龟"},
+  {"url":"images/波加曼.gif","name":"波加曼"},
+  {"url":"images/火稚鸡.gif","name":"火稚鸡"},
+  {"url":"images/呱呱泡蛙.gif","name":"呱呱泡蛙"},
+  {"url":"images/可可多拉.gif","name":"可可多拉"},
+  {"url":"images/拉鲁拉丝.gif","name":"拉鲁拉丝"},
+  {"url":"images/幼基拉斯.gif","name":"幼基拉斯"},
+  {"url":"images/圆陆鲨.gif","name":"圆陆鲨"},
+  {"url":"images/菊草叶.gif","name":"菊草叶"},
+  {"url":"images/水跃鱼.gif","name":"水跃鱼"},
+  {"url":"images/藤藤蛇.gif","name":"藤藤蛇"},
+  {"url":"images/暖暖猪.gif","name":"暖暖猪"},
+  {"url":"images/水水獭.gif","name":"水水獭"},
+  {"url":"images/乌波.gif","name":"乌波"},
+  {"url":"images/向尾猫.gif","name":"向尾猫"},
+  {"url":"images/小火焰猴.gif","name":"小火焰猴"},
+  {"url":"images/小卡比兽.gif","name":"小卡比兽"},
+  {"url":"images/露力丽.gif","name":"露力丽"},
+  {"url":"images/毛球.gif","name":"毛球"},
+  {"url":"images/青绵鸟.gif","name":"青绵鸟"},
+  {"url":"images/差不多娃娃.gif","name":"差不多娃娃"},
+  {"url":"images/信使鸟.gif","name":"信使鸟"},
+  {"url":"images/索罗亚.gif","name":"索罗亚"},
+  {"url":"images/铁哑铃.gif","name":"铁哑铃"}
+]
+</script>
+
+<!-- ================================================================
+     📦 进化关系数据（放在 HTML 里，不参与导出）
+     ================================================================ -->
+<script type="application/json" id="evolution-data">
+[
+  {"source":"images/小火龙.gif","target":"images/火恐龙.gif"},
+  {"source":"images/火恐龙.gif","target":"images/喷火龙.gif"},
+  {"source":"images/喷火龙.gif","target":"images/喷火龙MegaX.gif"},
+  {"source":"images/妙蛙种子.gif","target":"images/妙蛙草.gif"},
+  {"source":"images/妙蛙草.gif","target":"images/妙蛙花.gif"},
+  {"source":"images/杰尼龟.gif","target":"images/卡咪龟.gif"},
+  {"source":"images/卡咪龟.gif","target":"images/水箭龟.gif"},
+  {"source":"images/绿毛虫.gif","target":"images/铁甲蛹.gif"},
+  {"source":"images/铁甲蛹.gif","target":"images/巴大蝶.gif"},
+  {"source":"images/独角虫.gif","target":"images/铁壳昆.gif"},
+  {"source":"images/铁壳昆.gif","target":"images/大针蜂.gif"},
+  {"source":"images/大针蜂.gif","target":"images/大针蜂Mega.gif"},
+  {"source":"images/波波.gif","target":"images/比比鸟.gif"},
+  {"source":"images/比比鸟.gif","target":"images/比雕.gif"},
+  {"source":"images/皮丘.gif","target":"images/皮卡丘.gif"},
+  {"source":"images/皮卡丘.gif","target":"images/雷丘.gif"},
+  {"source":"images/鲤鱼王.gif","target":"images/暴鲤龙.gif"},
+  {"source":"images/墨海马.gif","target":"images/海刺龙.gif"},
+  {"source":"images/海刺龙.gif","target":"images/刺龙王.gif"},
+  {"source":"images/迷你龙.gif","target":"images/哈克龙.gif"},
+  {"source":"images/哈克龙.gif","target":"images/快龙.gif"},
+  {"source":"images/凯西.gif","target":"images/勇基拉.gif"},
+  {"source":"images/勇基拉.gif","target":"images/胡地.gif"},
+  {"source":"images/胡地.gif","target":"images/胡地Mega.gif"},
+  {"source":"images/鬼斯.gif","target":"images/鬼斯通.gif"},
+  {"source":"images/鬼斯通.gif","target":"images/耿鬼.gif"},
+  {"source":"images/飞天螳螂.gif","target":"images/巨钳螳螂.gif"},
+  {"source":"images/巨钳螳螂.gif","target":"images/巨钳螳螂Mega.gif"},
+  {"source":"images/六尾.gif","target":"images/九尾.gif"},
+  {"source":"images/卡蒂狗.gif","target":"images/风速狗.gif"},
+  {"source":"images/独角犀牛.gif","target":"images/钻角犀兽.gif"},
+  {"source":"images/钻角犀兽.gif","target":"images/超甲狂犀.gif"},
+  {"source":"images/卡拉卡拉.gif","target":"images/嘎啦嘎啦.gif"},
+  {"source":"images/胖丁.gif","target":"images/胖可丁.gif"},
+  {"source":"images/角金鱼.gif","target":"images/金鱼王.gif"},
+  {"source":"images/海星星.gif","target":"images/宝石海星.gif"},
+  {"source":"images/小海狮.gif","target":"images/白海狮.gif"},
+  {"source":"images/呆呆兽.gif","target":"images/呆壳兽.gif"},
+  {"source":"images/呆壳兽.gif","target":"images/呆呆王.gif"},
+  {"source":"images/可达鸭.gif","target":"images/哥达鸭.gif"},
+  {"source":"images/草苗龟.gif","target":"images/树林龟.gif"},
+  {"source":"images/树林龟.gif","target":"images/土台龟.gif"},
+  {"source":"images/波加曼.gif","target":"images/波皇子.gif"},
+  {"source":"images/波皇子.gif","target":"images/帝王拿波.gif"},
+  {"source":"images/火稚鸡.gif","target":"images/力壮鸡.gif"},
+  {"source":"images/力壮鸡.gif","target":"images/火焰鸡.gif"},
+  {"source":"images/火焰鸡.gif","target":"images/火焰鸡Mega.gif"},
+  {"source":"images/呱呱泡蛙.gif","target":"images/甲贺忍蛙.gif"},
+  {"source":"images/可可多拉.gif","target":"images/可多拉.gif"},
+  {"source":"images/可多拉.gif","target":"images/波士可多拉.gif"},
+  {"source":"images/拉鲁拉丝.gif","target":"images/奇鲁拉丝.gif"},
+  {"source":"images/奇鲁拉丝.gif","target":"images/沙奈朵.gif"},
+  {"source":"images/沙奈朵.gif","target":"images/沙奈朵Mega.gif"},
+  {"source":"images/幼基拉斯.gif","target":"images/沙基拉斯.gif"},
+  {"source":"images/沙基拉斯.gif","target":"images/班基拉斯.gif"},
+  {"source":"images/班基拉斯.gif","target":"images/班基拉斯Mega.gif"},
+  {"source":"images/圆陆鲨.gif","target":"images/尖牙陆鲨.gif"},
+  {"source":"images/尖牙陆鲨.gif","target":"images/烈咬陆鲨.gif"},
+  {"source":"images/烈咬陆鲨.gif","target":"images/烈咬陆鲨Mega.gif"},
+  {"source":"images/菊草叶.gif","target":"images/月桂叶.gif"},
+  {"source":"images/月桂叶.gif","target":"images/大竺葵.gif"},
+  {"source":"images/水跃鱼.gif","target":"images/沼跃鱼.gif"},
+  {"source":"images/沼跃鱼.gif","target":"images/巨沼怪.gif"},
+  {"source":"images/藤藤蛇.gif","target":"images/青藤蛇.gif"},
+  {"source":"images/青藤蛇.gif","target":"images/君主蛇.gif"},
+  {"source":"images/暖暖猪.gif","target":"images/炒炒猪.gif"},
+  {"source":"images/炒炒猪.gif","target":"images/炎武王.gif"},
+  {"source":"images/水水獭.gif","target":"images/双刃丸.gif"},
+  {"source":"images/双刃丸.gif","target":"images/大剑鬼.gif"},
+  {"source":"images/乌波.gif","target":"images/沼王.gif"},
+  {"source":"images/向尾猫.gif","target":"images/优雅猫.gif"},
+  {"source":"images/小火焰猴.gif","target":"images/猛火猴.gif"},
+  {"source":"images/猛火猴.gif","target":"images/烈焰猴.gif"},
+  {"source":"images/小卡比兽.gif","target":"images/卡比兽.gif"},
+  {"source":"images/露力丽.gif","target":"images/玛力露.gif"},
+  {"source":"images/玛力露.gif","target":"images/玛力露丽.gif"},
+  {"source":"images/毛球.gif","target":"images/摩鲁蛾.gif"},
+  {"source":"images/青绵鸟.gif","target":"images/七夕青鸟.gif"},
+  {"source":"images/索罗亚.gif","target":"images/索罗亚克.gif"},
+  {"source":"images/索罗亚克.gif","target":"images/索罗亚克洗翠.gif"},
+  {"source":"images/铁哑铃.gif","target":"images/金属怪.gif"},
+  {"source":"images/金属怪.gif","target":"images/巨金怪.gif"},
+  {"source":"images/吉利蛋.gif","target":"images/幸福蛋.gif"}
+]
+</script>
+
+<!-- ================================================================
+     📦 应用配置（快捷理由、徽章里程碑、进度条配色）
+     ================================================================ -->
+<script type="application/json" id="app-config">
 {
-  "students": [
-    {"id":"s1","name":"何双岑","groupId":"g1","score":20,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s2","name":"陆欣怡","groupId":"g1","score":20,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s3","name":"甘松浩","groupId":"g1","score":20,"nickname":"团支书","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s4","name":"吴贵良","groupId":"g1","score":20,"nickname":"","gifLibrary":[{"url":"images/杰尼龟.gif","evolution":"images/卡咪龟.gif"}],"gifList":["images/杰尼龟.gif"],"badges":1,"badgeMilestones":0,"_imgId":"gif-img-s4","_gifList":["images/杰尼龟.gif"]},
-    {"id":"s5","name":"玉灿睿","groupId":"g1","score":20,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s6","name":"卢灿泽","groupId":"g1","score":20,"nickname":"劳动委员","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s7","name":"冯兴银","groupId":"g1","score":20,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s8","name":"黄子轩","groupId":"g1","score":20,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s9","name":"梁文浩","groupId":"g1","score":10,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s10","name":"何英俊","groupId":"g1","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s11","name":"邓华崧","groupId":"g1","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s12","name":"黄振宇","groupId":"g1","score":10,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s13","name":"黄特萱","groupId":"g2","score":20,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s14","name":"吴映蓉","groupId":"g2","score":20,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s15","name":"赵廷轩","groupId":"g2","score":20,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s16","name":"吴英丰","groupId":"g2","score":20,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s17","name":"杜科辉","groupId":"g2","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s18","name":"凌能能","groupId":"g2","score":20,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s19","name":"何灵智","groupId":"g2","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s20","name":"李圣杰","groupId":"g2","score":10,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s21","name":"吴念颖","groupId":"g2","score":20,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s22","name":"杜昊翔","groupId":"g2","score":10,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s23","name":"黄腊梅","groupId":"g3","score":20,"nickname":"生活委员","gifLibrary":[{"url":"images/皮卡丘限定.gif","evolution":null}],"gifList":["images/皮卡丘限定.gif"],"badges":1,"badgeMilestones":0,"_imgId":"gif-img-s23","_gifList":["images/皮卡丘限定.gif"]},
-    {"id":"s24","name":"甘露枝","groupId":"g3","score":20,"nickname":"","gifLibrary":[{"url":"images/皮丘.gif","evolution":"images/皮卡丘.gif"}],"gifList":["images/皮丘.gif"],"badges":1,"badgeMilestones":0,"_imgId":"gif-img-s24","_gifList":["images/皮丘.gif"]},
-    {"id":"s25","name":"农海宗","groupId":"g3","score":20,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s26","name":"黄强","groupId":"g3","score":20,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s27","name":"黄志发","groupId":"g3","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s28","name":"李多宏","groupId":"g3","score":20,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s29","name":"谭兴","groupId":"g3","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s30","name":"方政轩","groupId":"g3","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s31","name":"黄晓嘉","groupId":"g4","score":20,"nickname":"班长","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s32","name":"农钰暄","groupId":"g4","score":20,"nickname":"学习委员","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s33","name":"黄欣喜","groupId":"g4","score":20,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s34","name":"黄巧莹","groupId":"g4","score":20,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s35","name":"黄映佳","groupId":"g4","score":20,"nickname":"纪律委员","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s36","name":"黄桂媛","groupId":"g4","score":20,"nickname":"文艺委员","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s37","name":"李骁伟","groupId":"g4","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s38","name":"黄道祺","groupId":"g4","score":20,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s39","name":"吴伟朝","groupId":"g4","score":20,"nickname":"体育委员","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s40","name":"黄子祥","groupId":"g4","score":20,"nickname":"体育委员","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0}
+  "builtInReasons": [
+    "参与班级管理",
+    "早读表现优秀",
+    "课堂表现优秀",
+    "晚练表现优秀",
+    "晚读表现优秀",
+    "晚修表现优秀"
   ],
-  "groups": [
-    {"id":"g1","name":"第一组"},
-    {"id":"g2","name":"第二组"},
-    {"id":"g3","name":"第三组"},
-    {"id":"g4","name":"第四组"}
-  ],
-  "scoreHistory": [
-    {"id":"h1790431486595_f8ij47","studentId":"s1","studentName":"何双岑","groupId":"g1","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_kfbxc6","studentId":"s2","studentName":"陆欣怡","groupId":"g1","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_proxeu","studentId":"s3","studentName":"甘松浩","groupId":"g1","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_b5c46d","studentId":"s4","studentName":"吴贵良","groupId":"g1","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_7fn4cd","studentId":"s5","studentName":"玉灿睿","groupId":"g1","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_ht1dgd","studentId":"s6","studentName":"卢灿泽","groupId":"g1","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_ru4qdw","studentId":"s7","studentName":"冯兴银","groupId":"g1","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_4cs1eu","studentId":"s8","studentName":"黄子轩","groupId":"g1","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_vwrgns","studentId":"s12","studentName":"黄振宇","groupId":"g1","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_qbq7gr","studentId":"s13","studentName":"黄特萱","groupId":"g2","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_xw2f40","studentId":"s14","studentName":"吴映蓉","groupId":"g2","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_co1uh9","studentId":"s15","studentName":"赵廷轩","groupId":"g2","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_xlwkyh","studentId":"s16","studentName":"吴英丰","groupId":"g2","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_b28bhd","studentId":"s18","studentName":"凌能能","groupId":"g2","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_c7qxhj","studentId":"s21","studentName":"吴念颖","groupId":"g2","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_y6jqnw","studentId":"s23","studentName":"黄腊梅","groupId":"g3","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_0ibr10","studentId":"s24","studentName":"甘露枝","groupId":"g3","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_dnibv5","studentId":"s25","studentName":"农海宗","groupId":"g3","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_5niykj","studentId":"s26","studentName":"黄强","groupId":"g3","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_pr29ou","studentId":"s28","studentName":"李多宏","groupId":"g3","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_wkhhiq","studentId":"s31","studentName":"黄晓嘉","groupId":"g4","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_270i3b","studentId":"s32","studentName":"农钰暄","groupId":"g4","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_pdrp39","studentId":"s33","studentName":"黄欣喜","groupId":"g4","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_qtllx3","studentId":"s34","studentName":"黄巧莹","groupId":"g4","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_03aj2i","studentId":"s35","studentName":"黄映佳","groupId":"g4","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_vtv9mx","studentId":"s36","studentName":"黄桂媛","groupId":"g4","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_cgf6ag","studentId":"s38","studentName":"黄道祺","groupId":"g4","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_wmv465","studentId":"s39","studentName":"吴伟朝","groupId":"g4","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790431486595_rvm9qt","studentId":"s40","studentName":"黄子祥","groupId":"g4","oldScore":0,"change":10,"newScore":10,"reason":"假期坚持学习","earnedBadges":0,"time":"2026/9/26 22:04:46"},
-    {"id":"h1790518096464_pmv4ns","studentId":"s1","studentName":"何双岑","groupId":"g1","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_psy5w8","studentId":"s2","studentName":"陆欣怡","groupId":"g1","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_12o67z","studentId":"s3","studentName":"甘松浩","groupId":"g1","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_fogp4o","studentId":"s4","studentName":"吴贵良","groupId":"g1","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_sw8ama","studentId":"s5","studentName":"玉灿睿","groupId":"g1","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_jwpctb","studentId":"s6","studentName":"卢灿泽","groupId":"g1","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_7a3vz2","studentId":"s7","studentName":"冯兴银","groupId":"g1","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_l77s56","studentId":"s8","studentName":"黄子轩","groupId":"g1","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_o3m2sh","studentId":"s13","studentName":"黄特萱","groupId":"g2","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_mrn593","studentId":"s14","studentName":"吴映蓉","groupId":"g2","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_ui5qcx","studentId":"s15","studentName":"赵廷轩","groupId":"g2","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_hzbvx2","studentId":"s16","studentName":"吴英丰","groupId":"g2","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_wpp4u6","studentId":"s18","studentName":"凌能能","groupId":"g2","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_v2u4c0","studentId":"s21","studentName":"吴念颖","groupId":"g2","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_n92315","studentId":"s23","studentName":"黄腊梅","groupId":"g3","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_akju8t","studentId":"s24","studentName":"甘露枝","groupId":"g3","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_207fyk","studentId":"s25","studentName":"农海宗","groupId":"g3","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_ocpnqg","studentId":"s26","studentName":"黄强","groupId":"g3","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_focdnl","studentId":"s28","studentName":"李多宏","groupId":"g3","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_jjmur6","studentId":"s31","studentName":"黄晓嘉","groupId":"g4","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_sk1ksy","studentId":"s32","studentName":"农钰暄","groupId":"g4","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_z0jiew","studentId":"s33","studentName":"黄欣喜","groupId":"g4","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_ky0xm3","studentId":"s34","studentName":"黄巧莹","groupId":"g4","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_dzfk8k","studentId":"s35","studentName":"黄映佳","groupId":"g4","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_xaqxhd","studentId":"s36","studentName":"黄桂媛","groupId":"g4","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_6v8bkw","studentId":"s38","studentName":"黄道祺","groupId":"g4","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_pfxw0y","studentId":"s39","studentName":"吴伟朝","groupId":"g4","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_mda9kw","studentId":"s40","studentName":"黄子祥","groupId":"g4","oldScore":10,"change":10,"newScore":20,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_2igwm6","studentId":"s9","studentName":"梁文浩","groupId":"g1","oldScore":0,"change":10,"newScore":10,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_awt65g","studentId":"s20","studentName":"李圣杰","groupId":"g2","oldScore":0,"change":10,"newScore":10,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"},
-    {"id":"h1790518096464_3ja87n","studentId":"s22","studentName":"杜昊翔","groupId":"g2","oldScore":0,"change":10,"newScore":10,"reason":"提交作业","earnedBadges":0,"time":"2026/9/27 22:08:16"}
+  "badgeMilestone": 100,
+  "progressGradients": [
+    "linear-gradient(90deg,#4f6ef7,#7c3aed)",
+    "linear-gradient(90deg,#22c55e,#16a34a)",
+    "linear-gradient(90deg,#f59e0b,#ef4444)",
+    "linear-gradient(90deg,#ec4899,#a855f7)",
+    "linear-gradient(90deg,#06b6d4,#3b82f6)"
   ]
 }
 </script>
-<!-- ================================================================
-     默认数据结束
-     ================================================================ -->
 
-<div class="container">
+<!-- ================================================================
+     ⬇️ 页面结构
+     ================================================================ -->
+<div class="container" id="mainContainer" style="display:none;">
     <div class="corner-actions">
         <button class="btn btn-outline" onclick="openScoreHistory()">📋 积分记录</button>
         <button class="btn btn-outline" onclick="openBatchScore()">✏️ 积分管理</button>
@@ -337,7 +398,7 @@
         <div class="gif-wall-grid" id="gifWallGrid"></div>
     </div>
 
-    <div class="footer">💡 数据仅保存在内存中，刷新前请导出保存 · 使用 JSON 文件导入恢复</div>
+    <div class="footer">💡 数据来源于 data.json · 导出后可直接覆盖该文件</div>
 </div>
 
 <div class="modal-overlay" id="gifModalOverlay">
@@ -381,192 +442,37 @@
 </div>
 
 <script>
-    // ==================== 从页面中的 JSON 标签读取默认数据（含积分记录） ====================
-    function loadDefaultStudentData() {
+    // ============================================================
+    // 读取内嵌 JSON 数据
+    // ============================================================
+    function readInlineJson(id, fallback) {
         try {
-            const raw = document.getElementById('default-data').textContent.trim();
-            const data = JSON.parse(raw);
-            if (data && Array.isArray(data.students) && Array.isArray(data.groups)) {
-                return data;
-            }
-            console.warn('默认数据格式不正确，使用空数据');
+            const el = document.getElementById(id);
+            if (!el) return fallback;
+            return JSON.parse(el.textContent.trim());
         } catch (e) {
-            console.error('默认数据解析失败（请检查 <script id="default-data"> 内的 JSON 格式）：', e);
+            console.error(`数据区 #${id} 解析失败：`, e);
+            return fallback;
         }
-        return { students: [], groups: [], scoreHistory: [] };
     }
 
-    // ==================== 宠物库数据（不参与导入导出） ====================
-const DEFAULT_GIF_WALL = [
-  // 原始初始宝可梦
-  { url: 'images/小火龙.gif', name: '小火龙' },
-  { url: 'images/妙蛙种子.gif', name: '妙蛙种子' },
-  { url: 'images/杰尼龟.gif', name: '杰尼龟' },
-  { url: 'images/绿毛虫.gif', name: '绿毛虫' },
-  { url: 'images/独角虫.gif', name: '独角虫' },
-  { url: 'images/波波.gif', name: '波波' },
-  // 之前新增起点
-  { url: 'images/鲤鱼王.gif', name: '鲤鱼王' },
-  { url: 'images/墨海马.gif', name: '墨海马' },
-  { url: 'images/迷你龙.gif', name: '迷你龙' },
-  { url: 'images/凯西.gif', name: '凯西' },
-  { url: 'images/鬼斯.gif', name: '鬼斯' },
-  { url: 'images/飞天螳螂.gif', name: '飞天螳螂' },
-  { url: 'images/六尾.gif', name: '六尾' },
-  { url: 'images/卡蒂狗.gif', name: '卡蒂狗' },
-  { url: 'images/独角犀牛.gif', name: '独角犀牛' },
-  { url: 'images/卡拉卡拉.gif', name: '卡拉卡拉' },
-  { url: 'images/胖丁.gif', name: '胖丁' },
-  { url: 'images/角金鱼.gif', name: '角金鱼' },
-  { url: 'images/海星星.gif', name: '海星星' },
-  { url: 'images/小海狮.gif', name: '小海狮' },
-  { url: 'images/呆呆兽.gif', name: '呆呆兽' },
-  { url: 'images/可达鸭.gif', name: '可达鸭' },
-  { url: 'images/皮丘.gif', name: '皮丘' },
-  // 无进化链、独立稀有宝可梦，可以直接选择
-  { url: 'images/化石翼龙.gif', name: '化石翼龙' },
-  { url: 'images/吉利蛋.gif', name: '吉利蛋' },
-  { url: 'images/拉普拉斯.gif', name: '拉普拉斯' },
-  // 本次图片新增起点
-  { url: 'images/草苗龟.gif', name: '草苗龟' },
-  { url: 'images/波加曼.gif', name: '波加曼' },
-  { url: 'images/火稚鸡.gif', name: '火稚鸡' },
-  { url: 'images/呱呱泡蛙.gif', name: '呱呱泡蛙' },
-  { url: 'images/可可多拉.gif', name: '可可多拉' },
-  { url: 'images/拉鲁拉丝.gif', name: '拉鲁拉丝' },
-  { url: 'images/幼基拉斯.gif', name: '幼基拉斯' },
-  { url: 'images/圆陆鲨.gif', name: '圆陆鲨' },
-  { url: 'images/菊草叶.gif', name: '菊草叶' },
-  { url: 'images/水跃鱼.gif', name: '水跃鱼' },
-  { url: 'images/藤藤蛇.gif', name: '藤藤蛇' },
-  { url: 'images/暖暖猪.gif', name: '暖暖猪' },
-  { url: 'images/水水獭.gif', name: '水水獭' },
-  { url: 'images/乌波.gif', name: '乌波' },
-  { url: 'images/向尾猫.gif', name: '向尾猫' },
-  { url: 'images/小火焰猴.gif', name: '小火焰猴' },
-  { url: 'images/小卡比兽.gif', name: '小卡比兽' },
-  { url: 'images/露力丽.gif', name: '露力丽' },
-  { url: 'images/毛球.gif', name: '毛球' },
-  { url: 'images/青绵鸟.gif', name: '青绵鸟' },
-  { url: 'images/差不多娃娃.gif', name: '差不多娃娃' },
-  { url: 'images/信使鸟.gif', name: '信使鸟' },
-  { url: 'images/索罗亚.gif', name: '索罗亚' },
-  { url: 'images/铁哑铃.gif', name: '铁哑铃' }
-];
-const DEFAULT_EVOLUTION_DATA = [
-  // 原有进化链
-  { source: 'images/小火龙.gif', target: 'images/火恐龙.gif' },
-  { source: 'images/火恐龙.gif', target: 'images/喷火龙.gif' },
-  { source: 'images/喷火龙.gif', target: 'images/喷火龙MegaX.gif' },
-  { source: 'images/妙蛙种子.gif', target: 'images/妙蛙草.gif' },
-  { source: 'images/妙蛙草.gif', target: 'images/妙蛙花.gif' },
-  { source: 'images/杰尼龟.gif', target: 'images/卡咪龟.gif' },
-  { source: 'images/卡咪龟.gif', target: 'images/水箭龟.gif' },
-  { source: 'images/绿毛虫.gif', target: 'images/铁甲蛹.gif' },
-  { source: 'images/铁甲蛹.gif', target: 'images/巴大蝶.gif' },
-  { source: 'images/独角虫.gif', target: 'images/铁壳昆.gif' },
-  { source: 'images/铁壳昆.gif', target: 'images/大针蜂.gif' },
-  { source: 'images/大针蜂.gif', target: 'images/大针蜂Mega.gif' },
-  { source: 'images/波波.gif', target: 'images/比比鸟.gif' },
-  { source: 'images/比比鸟.gif', target: 'images/比雕.gif' },
-  { source: 'images/皮丘.gif', target: 'images/皮卡丘.gif' },
-  { source: 'images/皮卡丘.gif', target: 'images/雷丘.gif' },
-  { source: 'images/鲤鱼王.gif', target: 'images/暴鲤龙.gif' },
-  { source: 'images/墨海马.gif', target: 'images/海刺龙.gif' },
-  { source: 'images/海刺龙.gif', target: 'images/刺龙王.gif' },
-  { source: 'images/迷你龙.gif', target: 'images/哈克龙.gif' },
-  { source: 'images/哈克龙.gif', target: 'images/快龙.gif' },
-  { source: 'images/凯西.gif', target: 'images/勇基拉.gif' },
-  { source: 'images/勇基拉.gif', target: 'images/胡地.gif' },
-  { source: 'images/胡地.gif', target: 'images/胡地Mega.gif' },
-  { source: 'images/鬼斯.gif', target: 'images/鬼斯通.gif' },
-  { source: 'images/鬼斯通.gif', target: 'images/耿鬼.gif' },
-  { source: 'images/飞天螳螂.gif', target: 'images/巨钳螳螂.gif' },
-  { source: 'images/巨钳螳螂.gif', target: 'images/巨钳螳螂Mega.gif' },
-  { source: 'images/六尾.gif', target: 'images/九尾.gif' },
-  { source: 'images/卡蒂狗.gif', target: 'images/风速狗.gif' },
-  { source: 'images/独角犀牛.gif', target: 'images/钻角犀兽.gif' },
-  { source: 'images/钻角犀兽.gif', target: 'images/超甲狂犀.gif' },
-  { source: 'images/卡拉卡拉.gif', target: 'images/嘎啦嘎啦.gif' },
-  { source: 'images/胖丁.gif', target: 'images/胖可丁.gif' },
-  { source: 'images/角金鱼.gif', target: 'images/金鱼王.gif' },
-  { source: 'images/海星星.gif', target: 'images/宝石海星.gif' },
-  { source: 'images/小海狮.gif', target: 'images/白海狮.gif' },
-  { source: 'images/呆呆兽.gif', target: 'images/呆壳兽.gif' },
-  { source: 'images/呆壳兽.gif', target: 'images/呆呆王.gif' },
-  { source: 'images/可达鸭.gif', target: 'images/哥达鸭.gif' },
-  // 本次新增进化链
-  { source: 'images/草苗龟.gif', target: 'images/树林龟.gif' },
-  { source: 'images/树林龟.gif', target: 'images/土台龟.gif' },
-  { source: 'images/波加曼.gif', target: 'images/波皇子.gif' },
-  { source: 'images/波皇子.gif', target: 'images/帝王拿波.gif' },
-  { source: 'images/火稚鸡.gif', target: 'images/力壮鸡.gif' },
-  { source: 'images/力壮鸡.gif', target: 'images/火焰鸡.gif' },
-  { source: 'images/火焰鸡.gif', target: 'images/火焰鸡Mega.gif' },
-  { source: 'images/呱呱泡蛙.gif', target: 'images/甲贺忍蛙.gif' },
-  { source: 'images/可可多拉.gif', target: 'images/可多拉.gif' },
-  { source: 'images/可多拉.gif', target: 'images/波士可多拉.gif' },
-  { source: 'images/拉鲁拉丝.gif', target: 'images/奇鲁拉丝.gif' },
-  { source: 'images/奇鲁拉丝.gif', target: 'images/沙奈朵.gif' },
-  { source: 'images/沙奈朵.gif', target: 'images/沙奈朵Mega.gif' },
-  { source: 'images/幼基拉斯.gif', target: 'images/沙基拉斯.gif' },
-  { source: 'images/沙基拉斯.gif', target: 'images/班基拉斯.gif' },
-  { source: 'images/班基拉斯.gif', target: 'images/班基拉斯Mega.gif' },
-  { source: 'images/圆陆鲨.gif', target: 'images/尖牙陆鲨.gif' },
-  { source: 'images/尖牙陆鲨.gif', target: 'images/烈咬陆鲨.gif' },
-  { source: 'images/烈咬陆鲨.gif', target: 'images/烈咬陆鲨Mega.gif' },
-  { source: 'images/菊草叶.gif', target: 'images/月桂叶.gif' },
-  { source: 'images/月桂叶.gif', target: 'images/大竺葵.gif' },
-  { source: 'images/水跃鱼.gif', target: 'images/沼跃鱼.gif' },
-  { source: 'images/沼跃鱼.gif', target: 'images/巨沼怪.gif' },
-  { source: 'images/藤藤蛇.gif', target: 'images/青藤蛇.gif' },
-  { source: 'images/青藤蛇.gif', target: 'images/君主蛇.gif' },
-  { source: 'images/暖暖猪.gif', target: 'images/炒炒猪.gif' },
-  { source: 'images/炒炒猪.gif', target: 'images/炎武王.gif' },
-  { source: 'images/水水獭.gif', target: 'images/双刃丸.gif' },
-  { source: 'images/双刃丸.gif', target: 'images/大剑鬼.gif' },
-  { source: 'images/乌波.gif', target: 'images/沼王.gif' },
-  { source: 'images/向尾猫.gif', target: 'images/优雅猫.gif' },
-  { source: 'images/小火焰猴.gif', target: 'images/猛火猴.gif' },
-  { source: 'images/猛火猴.gif', target: 'images/烈焰猴.gif' },
-  { source: 'images/小卡比兽.gif', target: 'images/卡比兽.gif' },
-  { source: 'images/露力丽.gif', target: 'images/玛力露.gif' },
-  { source: 'images/玛力露.gif', target: 'images/玛力露丽.gif' },
-  { source: 'images/毛球.gif', target: 'images/摩鲁蛾.gif' },
-  { source: 'images/青绵鸟.gif', target: 'images/七夕青鸟.gif' },
-  { source: 'images/海豹球.gif', target: 'images/海魔狮.gif' },
-  { source: 'images/海魔狮.gif', target: 'images/帝牙海狮.gif' },
-  { source: 'images/索罗亚.gif', target: 'images/索罗亚克.gif' },
-  { source: 'images/索罗亚克.gif', target: 'images/索罗亚克洗翠.gif' },
-  { source: 'images/铁哑铃.gif', target: 'images/金属怪.gif' },
-  { source: 'images/金属怪.gif', target: 'images/巨金怪.gif' },
-  { source: 'images/吉利蛋.gif', target: 'images/幸福蛋.gif' }
-];
+    const _gifWallData = readInlineJson('gif-wall-data', []);
+    const _evolutionData = readInlineJson('evolution-data', []);
+    const _appConfig = readInlineJson('app-config', {
+        builtInReasons: [],
+        badgeMilestone: 100,
+        progressGradients: ['linear-gradient(90deg,#4f6ef7,#7c3aed)']
+    });
 
-    const BUILT_IN_REASONS = [
-        '参与班级管理',
-        '早读表现优秀',
-        '课堂表现优秀',
-        '晚练表现优秀',
-        '晚读表现优秀',
-        '晚修表现优秀'
-    ];
+    const BADGE_MILESTONE = _appConfig.badgeMilestone || 100;
+    const PROGRESS_GRADIENTS = _appConfig.progressGradients || ['linear-gradient(90deg,#4f6ef7,#7c3aed)'];
+    const BUILT_IN_REASONS = _appConfig.builtInReasons || [];
 
-    const BADGE_MILESTONE = 100;
-    const PROGRESS_GRADIENTS = [
-        'linear-gradient(90deg,#4f6ef7,#7c3aed)',
-        'linear-gradient(90deg,#22c55e,#16a34a)',
-        'linear-gradient(90deg,#f59e0b,#ef4444)',
-        'linear-gradient(90deg,#ec4899,#a855f7)',
-        'linear-gradient(90deg,#06b6d4,#3b82f6)'
-    ];
-
-    // ==================== 全局数据 ====================
-    const _defaultData = loadDefaultStudentData();
-    let studentData = { students: _defaultData.students, groups: _defaultData.groups };
-    let scoreHistory = Array.isArray(_defaultData.scoreHistory) ? _defaultData.scoreHistory : [];
-    let gifWallData = JSON.parse(JSON.stringify(DEFAULT_GIF_WALL));
-    let evolutionData = JSON.parse(JSON.stringify(DEFAULT_EVOLUTION_DATA));
+    // 全局数据
+    let studentData = { students: [], groups: [] };
+    let scoreHistory = [];
+    let gifWallData = Array.isArray(_gifWallData) ? _gifWallData : [];
+    let evolutionData = Array.isArray(_evolutionData) ? _evolutionData : [];
 
     let currentView = 'all';
     let currentPage = 'scoreboard';
@@ -581,6 +487,9 @@ const DEFAULT_EVOLUTION_DATA = [
     let historyFilterType = 'all';
     let historySearch = '';
 
+    // ============================================================
+    // 工具函数
+    // ============================================================
     function getGroupName(groups, groupId) { const g = groups.find(gr => gr.id === groupId); return g ? g.name : '未分组'; }
     function getPlaceholderColor(name) {
         const colors = ['#ef4444','#f59e0b','#22c55e','#4f6ef7','#a855f7','#ec4899','#14b8a6','#f97316','#6366f1','#84cc16','#06b6d4','#d946ef'];
@@ -593,17 +502,13 @@ const DEFAULT_EVOLUTION_DATA = [
         const tier = Math.floor(positive / BADGE_MILESTONE);
         return PROGRESS_GRADIENTS[tier % PROGRESS_GRADIENTS.length];
     }
-    function getLevelProgress(score) {
-        const positive = Math.max(0, score);
-        return positive % BADGE_MILESTONE;
-    }
+    function getLevelProgress(score) { return Math.max(0, score) % BADGE_MILESTONE; }
     function escapeHtml(str) {
         if (str === undefined || str === null) return '';
         return String(str).replace(/[&<>"']/g, function(m) {
             return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m];
         });
     }
-
     function normalizeStudentData(data) {
         if (!data.students) data.students = [];
         if (!data.groups) data.groups = [];
@@ -622,8 +527,50 @@ const DEFAULT_EVOLUTION_DATA = [
         });
         return data;
     }
-    studentData = normalizeStudentData(studentData);
 
+    // ============================================================
+    // 初始化：从 data.json 加载学生数据
+    // ============================================================
+    async function loadStudentDataFromJson() {
+        const overlay = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+        try {
+            // 加时间戳避免浏览器缓存旧数据
+            const res = await fetch('data.json?v=' + Date.now());
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            if (!data || !Array.isArray(data.students) || !Array.isArray(data.groups)) {
+                throw new Error('data.json 格式不正确');
+            }
+            studentData = { students: data.students, groups: data.groups };
+            scoreHistory = Array.isArray(data.scoreHistory) ? data.scoreHistory : [];
+            studentData = normalizeStudentData(studentData);
+            // 隐藏加载遮罩，显示主界面
+            overlay.classList.add('hide');
+            document.getElementById('mainContainer').style.display = '';
+            renderScoreboard();
+            renderGifWall();
+        } catch (e) {
+            console.error('加载 data.json 失败：', e);
+            // 显示错误提示（尤其是本地双击打开时）
+            loadingText.innerHTML = `
+                <div class="data-error">
+                    <h3>⚠️ 无法加载学生数据</h3>
+                    <p>页面需要从同目录下的 <code>data.json</code> 文件读取学生名单。</p>
+                    <p style="margin-top:12px;font-weight:600;">常见原因：</p>
+                    <p style="text-align:left;">1. 把 <code>index.html</code> 和 <code>data.json</code> 放在同一目录下</p>
+                    <p style="text-align:left;">2. 如果您是<strong>双击打开 HTML 文件</strong>，浏览器出于安全限制无法读取本地 JSON 文件。<br>
+                    请使用 <strong>VS Code 的 Live Server</strong> 插件，或者把文件部署到 <strong>GitHub Pages</strong>、<strong>Gitee Pages</strong> 等静态托管服务上。</p>
+                    <p style="text-align:left;">3. 如果已经在 GitHub Pages 上部署，请按 <code>Ctrl+F5</code> 强制刷新重试。</p>
+                    <p style="margin-top:16px;font-size:12px;color:#9ca3af;">错误详情：${escapeHtml(e.message || String(e))}</p>
+                </div>
+            `;
+        }
+    }
+
+    // ============================================================
+    // 页面切换
+    // ============================================================
     function switchPage(page) {
         currentPage = page;
         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.page === page));
@@ -632,6 +579,9 @@ const DEFAULT_EVOLUTION_DATA = [
         if (page === 'scoreboard') renderScoreboard(); else if (page === 'gifwall') { renderGifWall(); clearAllRotations(); }
     }
 
+    // ============================================================
+    // 积分榜
+    // ============================================================
     function renderScoreboard() {
         const app = document.getElementById('scoreboard-app');
         if (!studentData.students || studentData.students.length === 0) { app.innerHTML = '<div class="empty-state">📭 暂无学生数据</div>'; return; }
@@ -661,14 +611,12 @@ const DEFAULT_EVOLUTION_DATA = [
         });
         app.innerHTML = html; startGifRotations(studentData.students);
     }
-
     function createStudentCard(student) {
         const initial = student.name.charAt(0);
         const placeholderColor = getPlaceholderColor(student.name);
         const score = student.score || 0;
         const progressPercent = getLevelProgress(score);
         const gradient = getProgressGradient(score);
-
         const nickname = student.nickname || '';
         const nicknameClass = nickname ? '' : 'empty';
         const nicknameHtml = nickname ? nickname : '&nbsp;';
@@ -696,7 +644,6 @@ const DEFAULT_EVOLUTION_DATA = [
             <div class="student-name">${student.name}</div>
         </div>`;
     }
-
     function startGifRotations(students) {
         clearAllRotations();
         students.forEach(student => {
@@ -713,6 +660,9 @@ const DEFAULT_EVOLUTION_DATA = [
     function clearAllRotations() { rotationTimers.forEach(t => clearInterval(t)); rotationTimers = []; }
     function switchView(view) { if (view !== 'group' && view !== 'all') return; currentView = view; renderScoreboard(); }
 
+    // ============================================================
+    // 学生宠物库
+    // ============================================================
     function openGifModal(studentId) {
         const student = studentData.students.find(s => s.id === studentId);
         if (!student) return;
@@ -729,7 +679,6 @@ const DEFAULT_EVOLUTION_DATA = [
         document.getElementById('gifModalOverlay').classList.add('show');
     }
     function closeGifModal() { document.getElementById('gifModalOverlay').classList.remove('show'); currentEditingStudentId = null; }
-
     function renderGifModalContent(student) {
         const library = student.gifLibrary || [];
         const container = document.getElementById('gifModalContent');
@@ -740,7 +689,7 @@ const DEFAULT_EVOLUTION_DATA = [
             <span style="margin-left:8px;">积分：<strong>${student.score || 0}</strong></span>
         </div>`;
         if (library.length === 0) {
-            html += `<p style="color:var(--gray); margin:16px 0;">暂无宠物，请点击下方“添加”从宠物库选择</p>`;
+            html += `<p style="color:var(--gray); margin:16px 0;">暂无宠物，请点击下方"添加"从宠物库选择</p>`;
         } else {
             html += `<div class="gif-library-grid">`;
             library.forEach((item, idx) => {
@@ -765,7 +714,6 @@ const DEFAULT_EVOLUTION_DATA = [
                 </div>`;
         container.innerHTML = html;
     }
-
     function toggleGifSelection(index) {
         const student = studentData.students.find(s => s.id === currentEditingStudentId);
         if (!student) return;
@@ -777,7 +725,6 @@ const DEFAULT_EVOLUTION_DATA = [
         }
         renderGifModalContent(student);
     }
-
     function evolveSelectedGif() {
         const student = studentData.students.find(s => s.id === currentEditingStudentId);
         if (!student) return;
@@ -796,7 +743,6 @@ const DEFAULT_EVOLUTION_DATA = [
         renderScoreboard();
         showToast('进化成功！');
     }
-
     function saveGifSelection() {
         const student = studentData.students.find(s => s.id === currentEditingStudentId);
         if (!student) return;
@@ -806,7 +752,9 @@ const DEFAULT_EVOLUTION_DATA = [
         showToast('展示设置已保存（请记得导出数据备份）');
     }
 
-    // ==================== 批量修改积分 ====================
+    // ============================================================
+    // 批量修改积分
+    // ============================================================
     function openBatchScore() {
         tempBatchSelectedIds = new Set();
         batchGroupFilter = 'all';
@@ -814,12 +762,10 @@ const DEFAULT_EVOLUTION_DATA = [
         renderBatchScoreModal();
         document.getElementById('batchScoreOverlay').classList.add('show');
     }
-
     function closeBatchScore() {
         document.getElementById('batchScoreOverlay').classList.remove('show');
         tempBatchSelectedIds = new Set();
     }
-
     function getFilteredBatchStudents() {
         let filtered = [...studentData.students];
         if (batchGroupFilter !== 'all') filtered = filtered.filter(s => s.groupId === batchGroupFilter);
@@ -830,11 +776,9 @@ const DEFAULT_EVOLUTION_DATA = [
         filtered.sort((a,b) => (b.score||0) - (a.score||0));
         return filtered;
     }
-
     function renderBatchScoreModal() {
         const container = document.getElementById('batchScoreContent');
         const filtered = getFilteredBatchStudents();
-
         const currentChange = document.getElementById('batchScoreChangeInput')?.value || '';
         const currentReason = document.getElementById('batchScoreReasonInput')?.value || '';
 
@@ -894,7 +838,6 @@ const DEFAULT_EVOLUTION_DATA = [
         `;
         container.innerHTML = html;
     }
-
     function setBatchReason(reason) {
         const input = document.getElementById('batchScoreReasonInput');
         if (input) {
@@ -905,7 +848,6 @@ const DEFAULT_EVOLUTION_DATA = [
             });
         }
     }
-
     function onReasonInputChange(value) {
         document.querySelectorAll('.quick-reason-btn').forEach(btn => {
             btn.classList.toggle('active', btn.textContent.trim() === value);
@@ -913,11 +855,9 @@ const DEFAULT_EVOLUTION_DATA = [
         const input = document.getElementById('batchScoreReasonInput');
         if (input && value.trim()) input.classList.remove('error');
     }
-
     function toggleBatchStudent(id) {
         if (tempBatchSelectedIds.has(id)) tempBatchSelectedIds.delete(id);
         else tempBatchSelectedIds.add(id);
-
         const item = document.querySelector(`.batch-student-item[data-student-id="${id}"]`);
         if (item) {
             const isSelected = tempBatchSelectedIds.has(id);
@@ -927,7 +867,6 @@ const DEFAULT_EVOLUTION_DATA = [
         }
         updateBatchSelectionInfo();
     }
-
     function updateBatchSelectionInfo() {
         const infoEl = document.querySelector('#batchScoreContent .batch-selection-info');
         const totalAvailable = document.querySelectorAll('#batchScoreContent .batch-student-item').length;
@@ -936,11 +875,8 @@ const DEFAULT_EVOLUTION_DATA = [
                 (tempBatchSelectedIds.size > 0 ? `<span style="color:var(--subtext);font-size:13px;">（共 ${totalAvailable} 人可选中）</span>` : '');
         }
         const confirmBtn = document.querySelector('#batchScoreContent .modal-footer .btn-primary');
-        if (confirmBtn) {
-            confirmBtn.textContent = `确认修改（${tempBatchSelectedIds.size} 人）`;
-        }
+        if (confirmBtn) confirmBtn.textContent = `确认修改（${tempBatchSelectedIds.size} 人）`;
     }
-
     function selectAllBatch() {
         const filtered = getFilteredBatchStudents();
         filtered.forEach(s => tempBatchSelectedIds.add(s.id));
@@ -954,7 +890,6 @@ const DEFAULT_EVOLUTION_DATA = [
         });
         updateBatchSelectionInfo();
     }
-
     function clearBatchSelection() {
         tempBatchSelectedIds = new Set();
         document.querySelectorAll('#batchScoreContent .batch-student-item').forEach(item => {
@@ -964,17 +899,12 @@ const DEFAULT_EVOLUTION_DATA = [
         });
         updateBatchSelectionInfo();
     }
-
     function setBatchScoreChange(value) {
         const input = document.getElementById('batchScoreChangeInput');
         if (input) input.value = value;
     }
-
     function confirmBatchScore() {
-        if (tempBatchSelectedIds.size === 0) {
-            showToast('请先选择要修改积分的学生');
-            return;
-        }
+        if (tempBatchSelectedIds.size === 0) { showToast('请先选择要修改积分的学生'); return; }
         const changeInput = document.getElementById('batchScoreChangeInput');
         const reasonInput = document.getElementById('batchScoreReasonInput');
         const change = parseInt(changeInput.value);
@@ -990,21 +920,16 @@ const DEFAULT_EVOLUTION_DATA = [
             changeInput.focus();
             return;
         }
-
         const selectedCount = tempBatchSelectedIds.size;
-
         let totalBadgesEarned = 0;
         let earnedStudents = [];
         const timestamp = new Date().toLocaleString('zh-CN');
-
         const idsToProcess = [...tempBatchSelectedIds];
-
         idsToProcess.forEach(id => {
             const student = studentData.students.find(s => s.id === id);
             if (!student) return;
             const oldScore = student.score || 0;
             student.score = oldScore + change;
-
             const newMilestone = Math.max(0, Math.floor(student.score / BADGE_MILESTONE));
             const currentMilestone = student.badgeMilestones || 0;
             let earnedBadges = 0;
@@ -1015,46 +940,31 @@ const DEFAULT_EVOLUTION_DATA = [
                 totalBadgesEarned += earnedBadges;
                 earnedStudents.push(student.name);
             }
-
             scoreHistory.push({
                 id: 'h' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-                studentId: student.id,
-                studentName: student.name,
-                groupId: student.groupId,
-                oldScore: oldScore,
-                change: change,
-                newScore: student.score,
-                reason: reason,
-                earnedBadges: earnedBadges,
-                time: timestamp
+                studentId: student.id, studentName: student.name, groupId: student.groupId,
+                oldScore: oldScore, change: change, newScore: student.score,
+                reason: reason, earnedBadges: earnedBadges, time: timestamp
             });
         });
-
         closeBatchScore();
         renderScoreboard();
-
         const sign = change > 0 ? '+' : '';
         showToast(`${selectedCount} 名学生积分 ${sign}${change}（${reason}）`);
         if (totalBadgesEarned > 0) {
-            setTimeout(() => {
-                showToast(`🎉 ${earnedStudents.length} 名学生达成新成就，共获得 ${totalBadgesEarned} 个徽章！`);
-            }, 900);
+            setTimeout(() => { showToast(`🎉 ${earnedStudents.length} 名学生达成新成就，共获得 ${totalBadgesEarned} 个徽章！`); }, 900);
         }
     }
 
-    // ==================== 积分记录 ====================
+    // ============================================================
+    // 积分记录
+    // ============================================================
     function openScoreHistory() {
-        historyFilterStudent = 'all';
-        historyFilterType = 'all';
-        historySearch = '';
+        historyFilterStudent = 'all'; historyFilterType = 'all'; historySearch = '';
         renderScoreHistoryModal();
         document.getElementById('historyOverlay').classList.add('show');
     }
-
-    function closeScoreHistory() {
-        document.getElementById('historyOverlay').classList.remove('show');
-    }
-
+    function closeScoreHistory() { document.getElementById('historyOverlay').classList.remove('show'); }
     function renderScoreHistoryModal() {
         const container = document.getElementById('historyContent');
         let filtered = [...scoreHistory];
@@ -1069,10 +979,8 @@ const DEFAULT_EVOLUTION_DATA = [
             );
         }
         filtered = filtered.reverse();
-
         const totalPlus = scoreHistory.filter(h => h.change > 0).reduce((s, h) => s + h.change, 0);
         const totalMinus = scoreHistory.filter(h => h.change < 0).reduce((s, h) => s + h.change, 0);
-
         const studentOptions = [...studentData.students]
             .sort((a,b) => (a.name || '').localeCompare(b.name || '', 'zh-CN'))
             .map(s => `<option value="${s.id}" ${historyFilterStudent === s.id ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('');
@@ -1097,7 +1005,6 @@ const DEFAULT_EVOLUTION_DATA = [
                 <span>🔍 当前显示 <strong>${filtered.length}</strong> 条</span>
             </div>
         `;
-
         if (filtered.length === 0) {
             html += `<div class="history-empty">📭 暂无积分记录<br><span style="font-size:12px;color:var(--gray);">修改积分后会自动记录在这里</span></div>`;
         } else {
@@ -1116,20 +1023,19 @@ const DEFAULT_EVOLUTION_DATA = [
                             ${badgeTag}
                         </div>
                         <div class="hi-reason">${escapeHtml(h.reason)}</div>
-                        <div class="hi-meta">
-                            ${escapeHtml(h.time)} <span class="hi-score-flow">· 积分变化：${flow}</span>
-                        </div>
+                        <div class="hi-meta">${escapeHtml(h.time)} <span class="hi-score-flow">· 积分变化：${flow}</span></div>
                     </div>
                 </div>`;
             });
             html += `</div>`;
         }
-
         html += `<div class="modal-footer"><button class="btn btn-outline" onclick="closeScoreHistory()">关闭</button></div>`;
         container.innerHTML = html;
     }
 
-    // ==================== 从宠物库选择 ====================
+    // ============================================================
+    // 从宠物库选择
+    // ============================================================
     function openWallPicker() {
         const student = studentData.students.find(s => s.id === currentEditingStudentId);
         if (!student) return;
@@ -1171,7 +1077,6 @@ const DEFAULT_EVOLUTION_DATA = [
         renderGifModalContent(student);
         showToast(`成功添加 ${tempWallSelection.length} 只宠物，消耗 ${requiredBadges} 个徽章`);
     }
-
     function renderGifWall() {
         const grid = document.getElementById('gifWallGrid');
         if (gifWallData.length === 0) { grid.innerHTML = '<div class="empty-state">🐾 宠物库为空</div>'; return; }
@@ -1183,20 +1088,26 @@ const DEFAULT_EVOLUTION_DATA = [
         }).join('');
     }
 
-    // ==================== 导入导出 ====================
+    // ============================================================
+    // 导入导出
+    // ============================================================
     function exportData() {
+        // 导出格式与 data.json 完全一致，可直接覆盖
         const data = {
             students: studentData.students,
             groups: studentData.groups,
             scoreHistory: scoreHistory
         };
-
         const lines = [];
         lines.push('{');
         lines.push('  "students": [');
         data.students.forEach((s, i) => {
             const comma = i < data.students.length - 1 ? ',' : '';
-            lines.push('    ' + JSON.stringify(s) + comma);
+            // 去掉运行时字段 _imgId / _gifList
+            const clean = { ...s };
+            delete clean._imgId;
+            delete clean._gifList;
+            lines.push('    ' + JSON.stringify(clean) + comma);
         });
         lines.push('  ],');
         lines.push('  "groups": [');
@@ -1213,17 +1124,16 @@ const DEFAULT_EVOLUTION_DATA = [
         lines.push('  ]');
         lines.push('}');
         const json = lines.join('\n');
-
         const blob = new Blob([json], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `班级学生数据_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.json`;
+        // 直接命名为 data.json，方便覆盖
+        a.download = 'data.json';
         a.click();
         URL.revokeObjectURL(url);
-        showToast('学生数据已导出（含积分记录）');
+        showToast('已导出 data.json，可直接覆盖原文件');
     }
-
     function importData(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -1233,9 +1143,7 @@ const DEFAULT_EVOLUTION_DATA = [
                 const data = JSON.parse(e.target.result);
                 if (data && data.students && data.groups) {
                     studentData = { students: data.students, groups: data.groups };
-                    if (Array.isArray(data.scoreHistory)) {
-                        scoreHistory = data.scoreHistory;
-                    }
+                    if (Array.isArray(data.scoreHistory)) scoreHistory = data.scoreHistory;
                     studentData = normalizeStudentData(studentData);
                     renderScoreboard();
                     renderGifWall();
@@ -1268,8 +1176,8 @@ const DEFAULT_EVOLUTION_DATA = [
         }
     });
 
-    renderScoreboard();
-    renderGifWall();
+    // 启动：从 data.json 读取学生数据
+    loadStudentDataFromJson();
 </script>
 </body>
 </html>
