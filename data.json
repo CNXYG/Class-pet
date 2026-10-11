@@ -15,7 +15,7 @@
     {"id":"s13","name":"黄特萱","groupId":"g2","score":0,"nickname":"","gifLibrary":[{"url":"images/黄特萱.jpg","evolution":null}],"gifList":["images/黄特萱.jpg"],"badges":0,"badgeMilestones":0},
     {"id":"s14","name":"吴映蓉","groupId":"g2","score":0,"nickname":"","gifLibrary":[{"url":"images/吴映蓉.jpg","evolution":null}],"gifList":["images/吴映蓉.jpg"],"badges":0,"badgeMilestones":0},
     {"id":"s15","name":"赵廷轩","groupId":"g2","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s16","name":"吴英丰","groupId":"g2","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":2,"badgeMilestones":1},
+    {"id":"s16","name":"吴英丰","groupId":"g2","score":0,"nickname":"","gifLibrary":[{"url":"images/吴英丰.jpg","evolution":null}],"gifList":["images/吴英丰.jpg"],"badges":1,"badgeMilestones":1},
     {"id":"s17","name":"杜科辉","groupId":"g2","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
     {"id":"s18","name":"凌能能","groupId":"g2","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
     {"id":"s19","name":"何灵智","groupId":"g2","score":0,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
