@@ -23,7 +23,7 @@
     {"id":"s21","name":"吴念颖","groupId":"g2","score":175,"nickname":"","gifLibrary":[],"gifList":[],"badges":3,"badgeMilestones":1},
     {"id":"s22","name":"杜昊翔","groupId":"g2","score":95,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
     {"id":"s23","name":"黄腊梅","groupId":"g3","score":215,"nickname":"生活委员","gifLibrary":[{"url":"images/黄腊梅.jpg","evolution":null}],"gifList":["images/黄腊梅.jpg"],"badges":4,"badgeMilestones":2},
-    {"id":"s24","name":"甘露枝","groupId":"g3","score":95,"nickname":"","gifLibrary":[{"url":"images/皮丘.gif","evolution":"images/皮卡丘.gif"},{"url":"images/甘露枝.jpg","evolution":null}],"gifList":["images/皮丘.gif","images/甘露枝.jpg"],"badges":1,"badgeMilestones":0},
+    {"id":"s24","name":"甘露枝","groupId":"g3","score":115,"nickname":"","gifLibrary":[{"url":"images/皮丘.gif","evolution":"images/皮卡丘.gif"},{"url":"images/甘露枝.jpg","evolution":null}],"gifList":["images/皮丘.gif","images/甘露枝.jpg"],"badges":1,"badgeMilestones":0},
     {"id":"s25","name":"农海宗","groupId":"g3","score":145,"nickname":"","gifLibrary":[],"gifList":[],"badges":3,"badgeMilestones":1},
     {"id":"s26","name":"黄强","groupId":"g3","score":115,"nickname":"","gifLibrary":[],"gifList":[],"badges":2,"badgeMilestones":1},
     {"id":"s27","name":"黄志发","groupId":"g3","score":85,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
