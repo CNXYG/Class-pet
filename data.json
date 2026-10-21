@@ -19,7 +19,7 @@
     {"id":"s17","name":"杜科辉","groupId":"g2","score":50,"nickname":"","gifLibrary":[],"gifList":[],"badges":2,"badgeMilestones":0},
     {"id":"s18","name":"凌能能","groupId":"g2","score":75,"nickname":"","gifLibrary":[],"gifList":[],"badges":2,"badgeMilestones":0},
     {"id":"s19","name":"何灵智","groupId":"g2","score":75,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
-    {"id":"s20","name":"李圣杰","groupId":"g2","score":35,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
+    {"id":"s20","name":"李圣杰","groupId":"g2","score":35,"nickname":"","gifLibrary":[{"url":"images/李圣杰.jpg","evolution":null}],"gifList":["images/李圣杰.jpg"],"badges":0,"badgeMilestones":0},
     {"id":"s21","name":"吴念颖","groupId":"g2","score":80,"nickname":"","gifLibrary":[],"gifList":[],"badges":2,"badgeMilestones":0},
     {"id":"s22","name":"杜昊翔","groupId":"g2","score":40,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
     {"id":"s23","name":"黄腊梅","groupId":"g3","score":100,"nickname":"生活委员","gifLibrary":[{"url":"images/黄腊梅.jpg","evolution":null}],"gifList":["images/黄腊梅.jpg"],"badges":3,"badgeMilestones":1},
