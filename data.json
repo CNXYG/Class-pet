@@ -1,14 +1,14 @@
 {
   "students": [
-    {"id":"s1","name":"何双岑","groupId":"g1","score":125,"nickname":"","gifLibrary":[{"url":"images/何双岑.jpg","evolution":null}],"gifList":["images/何双岑.jpg"],"badges":2,"badgeMilestones":1},
-    {"id":"s2","name":"陆欣怡","groupId":"g1","score":125,"nickname":"","gifLibrary":[{"url":"images/陆欣怡.jpg","evolution":null}],"gifList":["images/陆欣怡.jpg"],"badges":2,"badgeMilestones":1},
+    {"id":"s1","name":"何双岑","groupId":"g1","score":125,"nickname":"","gifLibrary":[{"url":"images/何双岑.jpg","evolution":null},{"url":"images/何双岑1.jpg","evolution":null}],"gifList":["images/何双岑1.jpg"],"badges":1,"badgeMilestones":1},
+    {"id":"s2","name":"陆欣怡","groupId":"g1","score":125,"nickname":"","gifLibrary":[{"url":"images/陆欣怡.jpg","evolution":null},{"url":"images/陆欣怡1.jpg","evolution":null}],"gifList":["images/陆欣怡1.jpg"],"badges":1,"badgeMilestones":1},
     {"id":"s3","name":"甘松浩","groupId":"g1","score":155,"nickname":"团支书","gifLibrary":[],"gifList":[],"badges":3,"badgeMilestones":1},
     {"id":"s4","name":"吴贵良","groupId":"g1","score":155,"nickname":"","gifLibrary":[{"url":"images/杰尼龟.gif","evolution":"images/卡咪龟.gif"}],"gifList":["images/杰尼龟.gif"],"badges":3,"badgeMilestones":1},
     {"id":"s5","name":"玉灿睿","groupId":"g1","score":35,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
     {"id":"s6","name":"卢灿泽","groupId":"g1","score":195,"nickname":"劳动委员","gifLibrary":[],"gifList":[],"badges":3,"badgeMilestones":1},
     {"id":"s7","name":"冯兴银","groupId":"g1","score":145,"nickname":"","gifLibrary":[],"gifList":[],"badges":2,"badgeMilestones":1},
     {"id":"s8","name":"黄子轩","groupId":"g1","score":155,"nickname":"","gifLibrary":[],"gifList":[],"badges":3,"badgeMilestones":1},
-    {"id":"s9","name":"梁文浩","groupId":"g1","score":185,"nickname":"","gifLibrary":[],"gifList":[],"badges":2,"badgeMilestones":1},
+    {"id":"s9","name":"梁文浩","groupId":"g1","score":185,"nickname":"","gifLibrary":[{"url":"images/梁文浩.jpg","evolution":null}],"gifList":["images/梁文浩.jpg"],"badges":1,"badgeMilestones":1},
     {"id":"s10","name":"何英俊","groupId":"g1","score":85,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
     {"id":"s11","name":"邓华崧","groupId":"g1","score":65,"nickname":"","gifLibrary":[],"gifList":[],"badges":1,"badgeMilestones":0},
     {"id":"s12","name":"黄振宇","groupId":"g1","score":145,"nickname":"","gifLibrary":[{"url":"images/超甲狂犀.gif","evolution":null}],"gifList":["images/超甲狂犀.gif"],"badges":0,"badgeMilestones":1},
